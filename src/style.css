@@ -1,8 +1,12 @@
-.canvas-container {
- margin: 20px; 
-}
-
-#the-canvas {
+#the-canvas, #penta-tree {
   display: block;
   margin: auto;
+  width: 800px;
+}
+
+#penta-tree {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #000;
+  color: #0ff;
 }

@@ -1,6 +1,6 @@
 /**
- * @param center: The upper large penta's center's position 
- * @param radius: The upper large penta's radius 
+ * @param center: The upper large penta's center's position
+ * @param radius: The upper large penta's radius
  * @param angle:  All penta's default angle
  * @param style: style configuration
  */
@@ -13,6 +13,21 @@ function GoldenBody(center, radius, angle, style) {
 
   this.createPentaTree();
   this.createStyleTree();
+
+  document.getElementById('penta-tree').innerHTML = this.toString();
+}
+
+GoldenBody.prototype.toString = function() {
+  return "GoldenBody.pentaTree = " +
+    JSON.stringify(this.pentaTree, (key, value) => {
+      if (isPenta(value)) {
+        return "Penta";
+      }
+      return value;
+    }, 2) +
+    "\n\n" +
+    "GoldenBody.styleTree = " +
+    JSON.stringify(this.styleTree, null, 2);
 }
 
 GoldenBody.prototype.createPentaTree = function() {
@@ -46,18 +61,28 @@ GoldenBody.prototype.createPentaTree = function() {
 
   middle.move([0, innerUpper.radius]);
 
+  let upperSuper = outerUpper.clone({
+    radius: outerUpper.radius * PM.gold * PM.gold
+  });
+
+  let lowerSuper = outerLower.clone({
+    radius: outerLower.radius * PM.gold * PM.gold
+  });
+
+  let upperCenter = innerUpper.getCenter();
+
   this.pentaTree = {
 
     middle: middle,
     lowerMiddle: lowerMiddle,
 
     upper: {
-      inner: innerUpper,
       outer: outerUpper,
+      inner: innerUpper,
     },
     lower: {
-      inner: innerLower,
       outer: outerLower,
+      inner: innerLower,
     },
 
     cores: {
@@ -72,6 +97,32 @@ GoldenBody.prototype.createPentaTree = function() {
         inner: innerLower.createCore(),
         outer: outerLower.createCore()
       }
+    },
+
+    rotated: {
+      middle: {
+        left: middle.clone().rotate(PM.deg72, upperCenter),
+        right: middle.clone().rotate(-PM.deg72, upperCenter)
+      },
+      lowerMiddle: {
+        left: lowerMiddle.clone().rotate(PM.deg72, upperCenter),
+        right: lowerMiddle.clone().rotate(-PM.deg72, upperCenter)
+      },
+      lower: {
+        outer: {
+          left: outerLower.clone().rotate(PM.deg72, upperCenter),
+          right: outerLower.clone().rotate(-PM.deg72, upperCenter)
+        },
+        inner: {
+          left: innerLower.clone().rotate(PM.deg72, upperCenter),
+          right: innerLower.clone().rotate(-PM.deg72, upperCenter)
+        }
+      },
+    },
+
+    supers: {
+      upper: upperSuper,
+      lower: lowerSuper
     }
   }
 
@@ -80,13 +131,13 @@ GoldenBody.prototype.createPentaTree = function() {
 }
 
 /**
- * Creates the same structure as pentaTree but 
+ * Creates the same structure as pentaTree but
  * instead of Pentas the styleTree's leafs are canvas2D style properties.
  */
 GoldenBody.prototype.createStyleTree = function(penta) {
 
   let innerOuterStyle = {
-    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan),
+    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest),
     inner: PS.all(PS.strokes.red, PS.fills.light.red)
   }
 
@@ -98,14 +149,20 @@ GoldenBody.prototype.createStyleTree = function(penta) {
   }
 
   let coreStyles = Object.assign({
-    lineWidth: 1.5
+    lineWidth: 1
   }, mainStyles);
 
   this.styleTree = Object.assign({
-    lineWidth: 2.5
-  }, mainStyles, {
-    cores: coreStyles
-  });
+      lineWidth: 1.5
+    },
+    mainStyles, {
+      cores: coreStyles
+    }, {
+      rotated: mainStyles
+    }, {
+      supers: PS.strokes.cyan
+    }
+  );
 
   console.log('styleTree');
   console.log(this.styleTree);
@@ -113,7 +170,8 @@ GoldenBody.prototype.createStyleTree = function(penta) {
 
 GoldenBody.prototype.getPentaSubtree = function(propertyPath) {
   if (!propertyPath) return;
+
   let subtree = this.pentaTree;
-  propertyPath.forEach((prop) => subtree = subtree[property]);
+  propertyPath.forEach((prop) => subtree = subtree[prop]);
   return subtree;
 }

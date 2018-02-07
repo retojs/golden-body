@@ -1,21 +1,21 @@
 /**
  * Idea for a flexible style configuration:
- * 
+ *
  *  A style configuration contains properties of the CanvasRenderingContext2D
  *  They can either be specified on root level of the style object:
- * 
+ *
  *    style = {
  *      strokeStyle: '#f04'
  *      fillStyle: '#ffa'
  *      lineWidth: 2
  *      lineJoin: 'round'
  *    }
- * 
+ *
  *  or they can be assigned to certain parts of the golden Body shape:
- * 
+ *
  *    style = {
  *      upper: {
- *        lineWidth: 3,  
+ *        lineWidth: 3,
  *        inner: {
  *          fillStyle: '#245233',
  *        }
@@ -29,8 +29,8 @@
  *      }
  *      middle: { ... }
  *    }
- * 
- *  PentaPainter.assignStyles() will assign all styles such that 
+ *
+ *  PentaPainter.assignStyles() will assign all styles such that
  *  more specific styles will overwrite more general styles.
  */
 
@@ -68,6 +68,12 @@ PS.stroke = function(color) {
 PS.fill = function(color) {
   return {
     fillStyle: color
+  };
+}
+
+PS.lineWidth = function(width) {
+  return {
+    lineWidth: width
   };
 }
 
@@ -118,4 +124,11 @@ PS.fills = {
     magenta: PS.fill(PS.light(PS.colors.magenta)),
     cyan: PS.fill(PS.light(PS.colors.cyan))
   }
+};
+
+PS.dashes = {
+  none: [],
+  finest: [1, 6],
+  fine: [2, 5],
+  gross: [4, 3],
 };
