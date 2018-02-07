@@ -1,0 +1,14 @@
+{
+  "name": "golden-body",
+  "version": "1.0.0",
+  "description": "Display of the Golden Body Model of Golden Body Spots",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "retojs",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
+}
