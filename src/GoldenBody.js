@@ -62,14 +62,18 @@ GoldenBody.prototype.createPentaTree = function() {
   middle.move([0, innerUpper.radius]);
 
   let upperSuper = outerUpper.clone({
-    radius: outerUpper.radius * PM.gold * PM.gold
+    radius: outerUpper.radius * PM.gold * PM.gold,
+    angle: outerUpper.angle + PM.deg180
   });
 
   let lowerSuper = outerLower.clone({
-    radius: outerLower.radius * PM.gold * PM.gold
+    radius: outerLower.radius * PM.gold * PM.gold,
+    angle: outerLower.angle + PM.deg180
   });
 
-  let upperCenter = innerUpper.getCenter();
+  function rotateByUpperCenter(penta, angle) {
+    return penta.clone().rotate(angle, innerUpper.getCenter())
+  }
 
   this.pentaTree = {
 
@@ -101,21 +105,21 @@ GoldenBody.prototype.createPentaTree = function() {
 
     rotated: {
       middle: {
-        left: middle.clone().rotate(PM.deg72, upperCenter),
-        right: middle.clone().rotate(-PM.deg72, upperCenter)
+        left: rotateByUpperCenter(middle, PM.deg72),
+        right: rotateByUpperCenter(middle, -PM.deg72)
       },
       lowerMiddle: {
-        left: lowerMiddle.clone().rotate(PM.deg72, upperCenter),
-        right: lowerMiddle.clone().rotate(-PM.deg72, upperCenter)
+        left: rotateByUpperCenter(lowerMiddle, PM.deg72),
+        right: rotateByUpperCenter(lowerMiddle, -PM.deg72)
       },
       lower: {
         outer: {
-          left: outerLower.clone().rotate(PM.deg72, upperCenter),
-          right: outerLower.clone().rotate(-PM.deg72, upperCenter)
+          left: rotateByUpperCenter(outerLower, PM.deg72),
+          right: rotateByUpperCenter(outerLower, -PM.deg72)
         },
         inner: {
-          left: innerLower.clone().rotate(PM.deg72, upperCenter),
-          right: innerLower.clone().rotate(-PM.deg72, upperCenter)
+          left: rotateByUpperCenter(innerLower, PM.deg72),
+          right: rotateByUpperCenter(innerLower, -PM.deg72)
         }
       },
     },
