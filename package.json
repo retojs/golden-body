@@ -4,6 +4,7 @@
   "description": "Display of the Golden Body Model of Golden Body Spots",
   "main": "index.html",
   "scripts": {
+    "start": "./node_modules/http-server/bin/http-server . ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "retojs",

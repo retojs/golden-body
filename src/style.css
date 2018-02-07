@@ -1,0 +1,8 @@
+.canvas-container {
+ margin: 20px; 
+}
+
+#the-canvas {
+  display: block;
+  margin: auto;
+}
