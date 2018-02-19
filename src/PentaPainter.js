@@ -2,9 +2,14 @@ function PentaPainter(ctx, width, height) {
   this.ctx = ctx;
   this.width = width;
   this.height = height;
+  this.PS = new PentaStyle(ctx);
 }
-
-PentaPainter.bgrImage = 'https://dl.dropboxusercontent.com/s/9ub001l9sgwx2bs/golden-spots--physiological-model--panta-painter.png'
+// close-up
+//PentaPainter.bgrImage = 'https://dl.dropboxusercontent.com/s/3covvimcz5gfrui/golden-spots--physiological-model--square-1004px.png'
+// far-off
+//PentaPainter.bgrImage = 'https://dl.dropboxusercontent.com/s/3covvimcz5gfrui/golden-spots--physiological-model--square-1004px.png'
+// golden proportions
+PentaPainter.bgrImage = 'https://dl.dropboxusercontent.com/s/l6qxx5gssmovn8n/physiological-model--golden-proportion-format.png'
 
 PentaPainter.prototype.circle = function(penta, style, doFill) {
   this.applyStyle(style || penta.style);
@@ -76,7 +81,7 @@ PentaPainter.prototype.paintBgrImage = function(width, height) {
    */
   return new Promise((resolve, reject) => {
     bgrImage.onload = () => {
-      this.ctx.drawImage(bgrImage, 0, 0);
+      this.ctx.drawImage(bgrImage, 0, -120);
       resolve();
     }
   });
@@ -89,6 +94,8 @@ PentaPainter.prototype.paintBgrImage = function(width, height) {
  */
 PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
 
+  goldenBody.createStyleTree(this.PS);
+
   /**
    * Here we are using a Promise to wait for the background image
    * to be loaded and painted on the canvas,
@@ -97,14 +104,13 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
   //this.paintBgrImage().then(() => this.paintSubtree(goldenBody));
 
   this.paintBgrImage().then(() => {
-    this.ctx.setLineDash(PS.dashes.none);
-    this.paintPropertySubtree(goldenBody, 'rotated');
-    this.paintPropertySubtree(goldenBody, 'upper');
-    this.paintPropertySubtree(goldenBody, 'lower');
-    this.paintPropertySubtree(goldenBody, 'middle');
-    this.paintPropertySubtree(goldenBody, 'lowerMiddle');
-    this.paintPropertySubtree(goldenBody, 'cores');
+    this.ctx.setLineDash(this.PS.dashes.none);
     this.paintPropertySubtree(goldenBody, 'supers');
+    this.paintPropertySubtree(goldenBody, 'extremities');
+    this.paintPropertySubtree(goldenBody, 'inner');
+    this.paintPropertySubtree(goldenBody, 'outer');
+    this.paintPropertySubtree(goldenBody, 'middle');
+    this.paintPropertySubtree(goldenBody, 'cores');
   });
 };
 
@@ -128,6 +134,18 @@ PentaPainter.prototype.paintSubtree = function(goldenBody, subtree, propertyPath
     this.circle(penta);
     this.pentagon(penta);
     this.pentagram(penta);
+    if (nextPath.indexOf('extremities') > -1) {
+      this.ctx.setLineDash(this.PS.dashes.fine);
+    }
+    if (nextPath.indexOf('supers') > -1) {
+      this.fillCircle(penta);
+      if (nextPath.indexOf('upper') > -1) {
+        this.fillPentagon(penta);
+      }
+      if (nextPath.indexOf('lower') > -1) {
+        this.fillPentagram(penta);
+      }
+    }
     if (nextPath.indexOf('outer') > -1) {
       this.fillPentagram(penta);
     }
@@ -135,7 +153,7 @@ PentaPainter.prototype.paintSubtree = function(goldenBody, subtree, propertyPath
       this.fillPentagon(penta);
     }
     if (nextPath.indexOf('middle') > -1 || nextPath.indexOf('lowerMiddle') > -1) {
-      this.fillCircle(penta);
+      this.fillPentagon(penta);
     }
   } else {
     Object.keys(subtree).forEach(key => {
@@ -165,7 +183,7 @@ PentaPainter.prototype.clearStyles = function() {
   this.ctx.fillStyle = "#000";
   this.ctx.lineWidth = 1;
   this.ctx.lineJoin = 'round';
-  this.ctx.lineDash = [];
+  this.ctx.setLineDash([]);
 };
 
 /**
