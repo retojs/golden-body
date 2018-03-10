@@ -13,8 +13,8 @@ function isPenta(obj) {
 
 Penta.prototype.toString = function() {
   return "Penta: " +
-    "center=[" + Math.round(this.x) + ", " + Math.round(this.y) + "], " +
-    "radius=" + Math.round(this.radius);
+    "center=[" + Math.round(this.x) + ", " + Math.round(this.y) + "]" +
+    ", radius=" + Math.round(this.radius);
 }
 
 //
