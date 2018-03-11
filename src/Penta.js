@@ -107,11 +107,11 @@ Penta.prototype.addStyle = function(style) {
 
 Penta.prototype.createEdges = function(radius) {
   return [
-    new Penta(this.p0, radius, 0 * PM.deg72),
-    new Penta(this.p1, radius, 1 * PM.deg72),
-    new Penta(this.p2, radius, 2 * PM.deg72),
-    new Penta(this.p3, radius, 3 * PM.deg72),
-    new Penta(this.p4, radius, 4 * PM.deg72)
+    new Penta(this.p0, radius, this.angle),
+    new Penta(this.p1, radius, this.angle),
+    new Penta(this.p2, radius, this.angle),
+    new Penta(this.p3, radius, this.angle),
+    new Penta(this.p4, radius, this.angle)
   ];
 };
 

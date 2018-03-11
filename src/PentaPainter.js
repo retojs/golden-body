@@ -27,13 +27,15 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
    */
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      this.paintSubtree(goldenBody, 'supers');
-      this.paintSubtree(goldenBody, 'extremities');
-      this.paintSubtree(goldenBody, 'inner');
-      this.paintSubtree(goldenBody, 'outer');
-      this.paintSubtree(goldenBody, 'middle');
-      this.paintSubtree(goldenBody, 'cores');
-      this.paintSubtreeSpots(goldenBody);
+      this.paintSubtreePentas(goldenBody, 'supers');
+      this.paintSubtreePentas(goldenBody, 'extremities');
+      this.paintSubtreePentas(goldenBody, 'inner');
+      this.paintSubtreePentas(goldenBody, 'outer');
+      this.paintSubtreePentas(goldenBody, 'middle');
+      this.paintSubtreePentas(goldenBody, 'cores');
+      this.paintSubtreeSpots(goldenBody, 'inner');
+      this.paintSubtreeSpots(goldenBody, 'outer');
+      this.paintSubtreeSpots(goldenBody, 'cores');
     });
 };
 
@@ -49,12 +51,12 @@ PentaPainter.prototype.asArray = function(propertyPath) {
   }
 };
 
-PentaPainter.prototype.paintSubtree = function(goldenBody, propertyPath) {
+PentaPainter.prototype.paintSubtreePentas = function(goldenBody, propertyPath) {
   let propertyPathArray = this.asArray(propertyPath);
-  this.paintSubtreePentas(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+  this.paintSubtreeNodePentas(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
-PentaPainter.prototype.paintSubtreePentas = function(goldenBody, subtree, propertyPathArray) {
+PentaPainter.prototype.paintSubtreeNodePentas = function(goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
   propertyPathArray = propertyPathArray || [];
 
@@ -91,47 +93,49 @@ PentaPainter.prototype.paintSubtreePentas = function(goldenBody, subtree, proper
     }
   } else {
     Object.keys(subtree).forEach(key => {
-      this.paintSubtreePentas(goldenBody, subtree[key], propertyPathArray.concat([key]));
+      this.paintSubtreeNodePentas(goldenBody, subtree[key], propertyPathArray.concat([key]));
     });
   }
 };
 
-PentaPainter.prototype.paintSubtreeSpots = function(goldenBody, subtree, styles) {
+PentaPainter.prototype.paintSubtreeSpots = function(goldenBody, propertyPath) {
+  let propertyPathArray = this.asArray(propertyPath);
+  this.paintSubtreeNodeSpots(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+}
+
+PentaPainter.prototype.paintSubtreeNodeSpots = function(goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
-  styles = styles || {};
+  propertyPathArray = propertyPathArray || [];
 
   if (isPenta(subtree)) {
     if (subtree.goldenSpots) {
-      this.paintPentaSpots(subtree, styles);
+      new PentaStyler().applyTreeStyles(goldenBody.styleTree, ["spots"].concat(propertyPathArray));
+      this.paintPentaSpots(subtree);
     }
   } else {
-    new PentaStyler().applyStyles(subtree.styles, styles);
     Object.keys(subtree).forEach(key => {
-      this.paintSubtreeSpots(goldenBody, subtree[key], styles);
+      this.paintSubtreeNodeSpots(goldenBody, subtree[key], propertyPathArray.concat([key]));
     });
   }
 }
 
-PentaPainter.prototype.paintPentaSpots = function(penta, styles) {
+PentaPainter.prototype.paintPentaSpots = function(penta) {
   if (penta.goldenSpots) {
-    let spots = penta.createEdges(penta.goldenSpots.radius);
-    let options = penta.goldenSpots.options;
     let ops = new PentaPainterOps();
-
-    styles = Object.assign({}, styles, penta.goldenSpots.styles);
-
+    let spots = penta.createEdges(penta.goldenSpots.radius);
     spots.forEach((spot) => {
+      let options = penta.goldenSpots.getSpotOptions(spot);
       if (options.fillCircle) {
-        ops.fillCircle(spot, styles);
+        ops.fillCircle(spot, options.fillCircle);
       }
       if (options.drawCircle) {
-        ops.circle(spot, styles);
+        ops.circle(spot, options.drawCircle);
       }
       if (options.fillStar) {
-        ops.fillPentagram(spot, styles)
+        ops.fillPentagram(spot, options.fillStar)
       }
       if (options.drawStar) {
-        ops.star(spot, styles)
+        ops.star(spot, options.drawStar)
       }
     });
   }

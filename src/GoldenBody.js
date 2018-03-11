@@ -74,24 +74,28 @@ GoldenBody.prototype.createPentaTree = function() {
     angle: outerLower.angle + PM.deg180
   });
 
-  let spotStylesCyan = PS.all(
-    PS.strokes.cyan,
-    PS.fills.weak.cyan
-  );
-
-  outerUpper.goldenSpots = new GoldenSpots(
+  let defaultSpots = new GoldenSpots(
     outerUpper,
-    outerUpper.radius * PM.gold_ * PM.gold_ * PM.gold_,
-    GoldenSpots.optionsStarWithCircle,
-    spotStylesCyan
+    middle.radius * PM.gold_ * PM.gold_ * PM.gold_, {
+      fillCircle: PS.fills.aGlowOf.cyan,
+      fillStar: PS.fills.green,
+      drawStar: PS.strokes.dark.cyan
+    }
   );
 
-  outerLower.goldenSpots = new GoldenSpots(
-    outerLower,
-    outerLower.radius * PM.gold_ * PM.gold_ * PM.gold_,
-    GoldenSpots.optionsStarWithCircle,
-    spotStylesCyan
-  );
+  outerUpper.goldenSpots = defaultSpots.clone();
+  outerLower.goldenSpots = defaultSpots.clone();
+  innerUpper.goldenSpots = defaultSpots.clone({
+    options: {
+      fillCircle: PS.fills.bright.magenta
+    }
+  });
+  innerLower.goldenSpots = defaultSpots.clone({
+    radius: defaultSpots.radius * 1.2,
+    options: {
+      fillCircle: PS.fills.aGlowOf.yellow
+    }
+  });
 
   this.pentaTree = {
 
@@ -183,66 +187,48 @@ GoldenBody.prototype.createStyleTree = function() {
   let PS = goldenContext.pentaStyle;
 
   let mainStyles = {
-    middle: PS.all(PS.strokes.dark.magenta, PS.fills.weak.magenta),
-    outer: PS.all(PS.strokes.cyan, PS.fills.weak.cyan, PS.dashes.finest),
-    inner: PS.all(PS.strokes.red, PS.fills.weak.red)
+    lineWidth: 1.5,
+    middle: PS.all(PS.strokes.dark.magenta, PS.fills.light.magenta),
+    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest),
+    inner: PS.all(PS.strokes.red, PS.fills.light.red)
   }
 
-  let coreStyles = Object.assign({
-    lineWidth: 1
-  }, mainStyles, {
-    middle: PS.all(PS.strokes.cyan, PS.fills.weak.cyan, PS.dashes.finest),
-  });
+  let coreStyles = Object.assign({}, mainStyles);
+  coreStyles.lineWidth = 1;
+  coreStyles.middle = PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest);
 
-  let supersGradientStyle = {
-    upper: PS.all(
-      PS.strokes.cyan,
-      PS.dashes.finest,
-      PS.fills.weak.cyan,
-      PS.gradient(this.pentaTree.supers.upper, PS.alpha(PS.colors.cyan, 0.15), PS.alpha(PS.colors.cyan, 0))
-    ),
-    lower: PS.all(
-      PS.strokes.cyan,
-      PS.dashes.finest,
-      PS.fills.weak.cyan,
-      PS.gradient(this.pentaTree.supers.lower, PS.alpha(PS.colors.cyan, 0.15), PS.alpha(PS.colors.cyan, 0))
-    )
+  let supersStyle = PS.all(
+    PS.fills.aShineOf.cyan(this.pentaTree.supers.upper),
+    PS.strokes.cyan,
+    PS.dashes.finest,
+  );
+
+  this.styleTree = mainStyles;
+  this.styleTree.cores = coreStyles;
+
+  this.styleTree.supers = {
+    upper: supersStyle,
+    lower: supersStyle
   };
 
-  this.styleTree = Object.assign({
-      lineWidth: 1.5
+  this.styleTree.extremities = {
+    upper: {
+      upper: mainStyles,
+      lower: mainStyles
     },
-    mainStyles, {
-      cores: coreStyles
-    }, {
-      supers: {
-        upper: supersGradientStyle.upper,
-        lower: supersGradientStyle.lower
-      }
-    }, {
-      extremities: {
-        upper: {
-          upper: mainStyles,
-          lower: mainStyles
-        },
-        lower: mainStyles
-      }
-    }, {
-      spots: {
-        middle: {
-          circle: true,
-          radius: 12,
-          style: PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.weak.cyan)
-        },
-        outer: {
-          style: PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.weak.cyan)
-        },
-        inner: {
-          style: PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.weak.cyan)
-        }
-      }
-    }
-  );
+    lower: mainStyles
+  };
+
+  this.styleTree.spots = {
+    strokeStyle: PS.colors.dark.cyan,
+    fillStyle: PS.colors.magenta
+  };
+  this.styleTree.spots.middle = PS.all(PS.strokes.green, PS.dashes.finest);
+  this.styleTree.spots.outer = PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.cyan);
+  this.styleTree.spots.cores = {
+    outer: this.styleTree.spots.outer
+  };
+  this.styleTree.spots.inner = PS.all(PS.strokes.red, PS.dashes.finest, PS.fills.red);
 
   console.log('styleTree');
   console.log(this.styleTree);
