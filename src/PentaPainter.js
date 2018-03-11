@@ -27,25 +27,25 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
    */
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      this.paintSubtreePentas(goldenBody, 'supers');
-      this.paintSubtreePentas(goldenBody, 'extremities');
+      //this.paintSubtreePentas(goldenBody, 'supers');
+      //  this.paintSubtreePentas(goldenBody, 'extremities');
       this.paintSubtreePentas(goldenBody, 'inner');
       this.paintSubtreePentas(goldenBody, 'outer');
       this.paintSubtreePentas(goldenBody, 'middle');
       this.paintSubtreePentas(goldenBody, 'cores');
-      this.paintSubtreeSpots(goldenBody, 'inner');
-      this.paintSubtreeSpots(goldenBody, 'outer');
-      this.paintSubtreeSpots(goldenBody, 'cores');
+      this.paintSubtreeSpots(goldenBody, 'inner.upper');
+      this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
+      //  this.paintSubtreeSpots(goldenBody, 'outer');
+      //  this.paintSubtreeSpots(goldenBody, 'cores');
     });
 };
-
 
 PentaPainter.prototype.asArray = function(propertyPath) {
   if (!propertyPath) return [];
   if (Array.isArray(propertyPath)) return propertyPath;
   if (typeof propertyPath === 'string') {
     let pathArray = propertyPath.split('.');
-    return Array.isArray(propertyPath) ? propertyPath : [propertyPath];
+    return Array.isArray(pathArray) ? pathArray : [pathArray];
   } else {
     throw "PentaPainter.prototype.asArray(propertyPath): Cannot handle propertyPath of type " + (typeof propertyPath);
   }

@@ -77,9 +77,10 @@ GoldenBody.prototype.createPentaTree = function() {
   let defaultSpots = new GoldenSpots(
     outerUpper,
     middle.radius * PM.gold_ * PM.gold_ * PM.gold_, {
-      fillCircle: PS.fills.aGlowOf.cyan,
-      fillStar: PS.fills.green,
-      drawStar: PS.strokes.dark.cyan
+      fillCircle: PS.fills.aShineOf.cyan,
+      drawCircle: PS.strokes.bright.cyan,
+      fillStar: PS.fills.yellow,
+      drawStar: PS.strokes.dark.red
     }
   );
 
@@ -87,7 +88,8 @@ GoldenBody.prototype.createPentaTree = function() {
   outerLower.goldenSpots = defaultSpots.clone();
   innerUpper.goldenSpots = defaultSpots.clone({
     options: {
-      fillCircle: PS.fills.bright.magenta
+      fillCircle: PS.fills.aShineOf.red,
+      drawCircle: PS.strokes.red,
     }
   });
   innerLower.goldenSpots = defaultSpots.clone({
@@ -223,7 +225,7 @@ GoldenBody.prototype.createStyleTree = function() {
     strokeStyle: PS.colors.dark.cyan,
     fillStyle: PS.colors.magenta
   };
-  this.styleTree.spots.middle = PS.all(PS.strokes.green, PS.dashes.finest);
+  this.styleTree.spots.middle = PS.all(PS.strokes.yellow, PS.dashes.finest);
   this.styleTree.spots.outer = PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.cyan);
   this.styleTree.spots.cores = {
     outer: this.styleTree.spots.outer

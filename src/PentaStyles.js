@@ -103,15 +103,17 @@ function PentaStyles(ctx) {
   };
 
   this.fills.aShineOf = {
-    red: this.makeAShineOf(this.colors.light.red),
-    green: this.makeAShineOf(this.colors.light.green),
-    blue: this.makeAShineOf(this.colors.light.blue),
-    yellow: this.makeAShineOf(this.colors.light.yellow),
-    magenta: this.makeAShineOf(this.colors.light.magenta),
-    cyan: this.makeAShineOf(this.colors.light.cyan),
+    white: this.makeAShineOf(this.colors.white),
+    red: this.makeAShineOf(this.colors.red),
+    green: this.makeAShineOf(this.colors.green),
+    blue: this.makeAShineOf(this.colors.blue),
+    yellow: this.makeAShineOf(this.colors.yellow),
+    magenta: this.makeAShineOf(this.colors.magenta),
+    cyan: this.makeAShineOf(this.colors.cyan),
   };
 
   this.fills.aGlowOf = {
+    white: this.makeAShineOf(this.colors.white),
     red: this.makeAGlowOf(this.colors.red),
     green: this.makeAGlowOf(this.colors.green),
     blue: this.makeAGlowOf(this.colors.blue),
@@ -149,7 +151,7 @@ PS.prototype.colorFromString = function(colorStr) {
 };
 
 PS.prototype.radialGradient = function(penta, color0, color1) {
-  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, penta.radius, penta.x, penta.y, 0.5 * penta.radius);
+  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, penta.radius, penta.x, penta.y, 0.3 * penta.radius);
   gradient.addColorStop(0, color0);
   gradient.addColorStop(1, color1);
   return this.fill(gradient);
@@ -164,11 +166,13 @@ PS.prototype.getRadialGradientMaker = function(innerColor, outerColor) {
 
 PS.prototype.makeAShineOf = function(color) {
   let otherColor = this.alpha(color, 0);
+  color = this.alpha(color, 2 * this.lightAlpha);
   return this.getRadialGradientMaker(color, otherColor);
 };
 
 PS.prototype.makeAGlowOf = function(color) {
   let otherColor = this.alpha(color, 0);
+  color = this.alpha(color, 2 * this.lightAlpha);
   return this.getRadialGradientMaker(otherColor, color);
 };
 
@@ -195,10 +199,10 @@ PS.prototype.alpha = function(colorStr, alpha) {
   return this.color(rgba[0], rgba[1], rgba[2], alpha);
 };
 
-PS.prototype.lightFactor = 0.25;
+PS.prototype.lightAlpha = 0.25;
 
-PS.prototype.light = function(colorStr, lightFactor) {
-  return this.alpha(colorStr, lightFactor || this.lightFactor);
+PS.prototype.light = function(colorStr, lightAlpha) {
+  return this.alpha(colorStr, lightAlpha || this.lightAlpha);
 };
 
 //
