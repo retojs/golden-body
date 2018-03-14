@@ -1,12 +1,29 @@
-#golden-body-canvas, #golden-body-penta-tree {
+#golden-body-canvas, #golden-body-penta-tree, #golden-body-style-tree {
   display: block;
   margin: auto;
   width: 800px;
 }
 
-#golden-body-penta-tree {
+#golden-body-canvas {
+  margin-bottom: 20px;
   margin-top: 20px;
+}
+
+#golden-body-penta-tree, #golden-body-style-tree {
+  width: 760px;
+  margin: auto;
   padding: 20px;
+  border: none;
+  border-bottom: 1px solid #f0f;
   background-color: #000;
   color: #0ff;
+  font-family: 'Roboto';
+}
+
+#golden-body-penta-tree {
+  color: #0ff;
+}
+
+#golden-body-style-tree {
+  color: #ff0;
 }

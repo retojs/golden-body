@@ -209,6 +209,20 @@ function createPentaTree(goldenBody) {
     return penta.clone().rotate(angle, center.getCenter())
   };
 
+  function toString(goldenBody) {
+    return "GoldenBody.pentaTree = " +
+      JSON.stringify(goldenBody.pentaTree, (key, value) => {
+        if (isPenta(value)) {
+          return value.toString();
+        }
+        if (isGoldenSpots(value)) {
+          return value.toString();
+        }
+        return value;
+      }, 2);
+  }
+
+  document.getElementById('golden-body-penta-tree').innerHTML = toString(goldenBody);
   console.log('pentaTree');
   console.log(goldenBody.pentaTree);
 }

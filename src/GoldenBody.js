@@ -13,24 +13,6 @@ function GoldenBody(center, radius, angle, ps) {
   this.root = new Penta(this.center, this.radius, this.angle);
 
   createPentaTree(this);
-
-  document.getElementById('golden-body-penta-tree').innerHTML = this.toString();
-}
-
-GoldenBody.prototype.toString = function() {
-  return "GoldenBody.pentaTree = " +
-    JSON.stringify(this.pentaTree, (key, value) => {
-      if (isPenta(value)) {
-        return value.toString();
-      }
-      if (isGoldenSpots(value)) {
-        return value.toString();
-      }
-      return value;
-    }, 2) +
-    "\n\n" +
-    "GoldenBody.styleTree = " +
-    JSON.stringify(this.styleTree, null, 2);
 }
 
 GoldenBody.prototype.getPentaSubtree = function(propertyPathArray) {
