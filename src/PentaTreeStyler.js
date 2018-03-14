@@ -1,8 +1,7 @@
 /**
- * Idea for a flexible style configuration:
+ *  # Cascading Style Configuration
  *
- *  A style configuration contains properties of the CanvasRenderingContext2D
- *  They can either be specified on root level of the style object:
+ *  A style configuration object contains properties of the CanvasRenderingContext2D.
  *
  *    style = {
  *      strokeStyle: '#f04'
@@ -11,15 +10,15 @@
  *      lineJoin: 'round'
  *    }
  *
- *  or they can be assigned to certain parts of the golden Body shape:
+ *  These style objects can be assigned to any path of the Golden Body Penta tree.
  *
- *    style = {
+ *    {
  *      upper: {
  *        lineWidth: 3,
  *        inner: {
  *          fillStyle: '#245233',
  *        }
- *        outer: {}
+ *        outer: {
  *          fillStyle: '#253434',
  *        }
  *      },
@@ -30,11 +29,12 @@
  *      middle: { ... }
  *    }
  *
- *  PentaStyler.applyTreeStyles() will assign all styles such that
- *  more specific styles will overwrite more general styles.
+ *  When painting a node of the Penta tree PentaTreeStyler.applyTreeStyles() will assign all styles
+ *  in the node's path in a cascading manner.
+ *  I.e. more specific styles will overwrite more general styles.
  */
 
-function PentaStyler() {
+function PentaTreeStyler() {
   this.styleProperties = [
     'strokeStyle',
     'fillStyle',
@@ -45,10 +45,10 @@ function PentaStyler() {
 }
 
 /**
- * Returns a new object with those properties of
- * the specified 'style' argument with a name from the list above.
+ * Returns a new object with those properties of the specified 'style' argument
+ * with a name from the list of style properties above.
  */
-PentaStyler.prototype.getStyleProps = function(style) {
+PentaTreeStyler.prototype.getStyleProps = function(style) {
   return Object.keys(style).reduce((memo, key) => {
     if (this.styleProperties.indexOf(key) > -1) {
       memo[key] = style[key]
@@ -57,7 +57,7 @@ PentaStyler.prototype.getStyleProps = function(style) {
   }, {});
 }
 
-PentaStyler.prototype.applyStyles = function(style, target) {
+PentaTreeStyler.prototype.applyStyles = function(style, target) {
   target = target || this.ctx;
   if (style) {
     Object.assign(target, this.getStyleProps(style));
@@ -69,7 +69,7 @@ PentaStyler.prototype.applyStyles = function(style, target) {
  * Traverses the specified style tree along the specified property path and
  * assigns all style properties to this.ctx in each step.
  */
-PentaStyler.prototype.applyTreeStyles = function(styleTree, propertyPath) {
+PentaTreeStyler.prototype.applyTreeStyles = function(styleTree, propertyPath) {
   if (!propertyPath) return;
 
   this.clearStyles();
@@ -78,12 +78,28 @@ PentaStyler.prototype.applyTreeStyles = function(styleTree, propertyPath) {
     Object.assign(this.ctx, this.getStyleProps(style));
     return style[property];
   }, styleTree);
+
+  console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
+  this.logStyles();
 }
 
-PentaStyler.prototype.clearStyles = function() {
+/**
+ * How to support wildcards in propertyPaths?
+ * We need a preprocessor which searches all matching paths in the tree.
+ * Then the found subtree should be rendered.
+ */
+PentaTreeStyler.prototype.expandWildcards = function(propertyPathArray) {
+  // TODO
+}
+
+PentaTreeStyler.prototype.clearStyles = function() {
   this.ctx.strokeStyle = "#000";
   this.ctx.fillStyle = "#000";
   this.ctx.lineWidth = 1;
   this.ctx.lineJoin = 'round';
   this.ctx.setLineDash([]);
 };
+
+PentaTreeStyler.prototype.logStyles = function() {
+  this.styleProperties.forEach(prop => console.log(prop, "=", this.ctx[prop]));
+}

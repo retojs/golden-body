@@ -10,7 +10,9 @@ function GoldenBody(center, radius, angle, ps) {
   this.radius = radius;
   this.angle = angle || 0;
 
-  this.createPentaTree(ps);
+  this.root = new Penta(this.center, this.radius, this.angle);
+
+  createPentaTree(this);
 
   document.getElementById('golden-body-penta-tree').innerHTML = this.toString();
 }
@@ -31,214 +33,67 @@ GoldenBody.prototype.toString = function() {
     JSON.stringify(this.styleTree, null, 2);
 }
 
-GoldenBody.prototype.createPentaTree = function() {
-  let PS = goldenContext.pentaStyle;
-
-  let root = new Penta(this.center, this.radius, this.angle);
-  let outerUpper = root;
-
-  let innerUpper = outerUpper.clone({
-    radius: outerUpper.innerRadius,
-    angle: outerUpper.angle + PM.deg36
-  });
-
-  let middle = innerUpper.clone({
-    radius: innerUpper.radius * PM.gold_
-  });
-
-  let outerLower = middle.clone({
-    radius: middle.outerRadius
-  })
-  outerLower.move([0, outerUpper.radius + outerLower.radius]);
-
-  let innerLower = middle.clone({
-    angle: middle.angle + PM.deg180
-  });
-  innerLower.move([0, outerUpper.radius + outerLower.radius]);
-
-  let lowerMiddle = middle.clone({
-    radius: middle.radius * PM.gold_,
-    angle: middle.angle + PM.deg36
-  });
-  lowerMiddle.move([0, outerUpper.radius + outerLower.radius - innerLower.radius]);
-
-  middle.move([0, innerUpper.radius]);
-
-  let upperSuper = outerUpper.clone({
-    radius: outerUpper.radius * PM.gold * PM.gold,
-    angle: outerUpper.angle + PM.deg180
-  });
-
-  let lowerSuper = outerLower.clone({
-    radius: outerLower.radius * PM.gold * PM.gold,
-    angle: outerLower.angle + PM.deg180
-  });
-
-  let defaultSpots = new GoldenSpots(
-    outerUpper,
-    middle.radius * PM.gold_ * PM.gold_ * PM.gold_, {
-      fillCircle: PS.fills.aShineOf.cyan,
-      drawCircle: PS.strokes.bright.cyan,
-      fillStar: PS.fills.yellow,
-      drawStar: PS.strokes.dark.red
-    }
-  );
-
-  outerUpper.goldenSpots = defaultSpots.clone();
-  outerLower.goldenSpots = defaultSpots.clone();
-  innerUpper.goldenSpots = defaultSpots.clone({
-    options: {
-      fillCircle: PS.fills.aShineOf.red,
-      drawCircle: PS.strokes.red,
-    }
-  });
-  innerLower.goldenSpots = defaultSpots.clone({
-    radius: defaultSpots.radius * 1.2,
-    options: {
-      fillCircle: PS.fills.aGlowOf.yellow
-    }
-  });
-
-  this.pentaTree = {
-
-    middle: {
-      upper: middle,
-      lower: lowerMiddle
-    },
-
-    outer: {
-      upper: outerUpper,
-      lower: outerLower
-    },
-    inner: {
-      upper: innerUpper,
-      lower: innerLower
-    },
-
-    cores: {
-      middle: {
-        upper: middle.createCore(),
-        lower: lowerMiddle.createCore()
-      },
-
-      outer: {
-        upper: outerUpper.createCore(),
-        lower: outerLower.createCore()
-      },
-      inner: {
-        upper: innerUpper.createCore(),
-        lower: innerLower.createCore()
-      }
-    },
-
-    supers: {
-      upper: upperSuper,
-      lower: lowerSuper
-    },
-
-    extremities: {
-      upper: {
-        upper: createExtremities(innerUpper, 2 * PM.deg72, innerLower, outerLower),
-        lower: createExtremities(innerUpper, PM.deg72, innerLower, outerLower)
-      },
-      lower: createExtremities(innerLower, 2 * PM.deg72, innerUpper, outerUpper)
-    }
-  };
-
-  function createExtremities(center, angle, extInner, extOuter) {
-    return {
-      middle: {
-        upper: {
-          left: rotateBy(center, middle, angle),
-          right: rotateBy(center, middle, -angle)
-        },
-        lower: {
-          left: rotateBy(center, lowerMiddle, angle),
-          right: rotateBy(center, lowerMiddle, -angle)
-        }
-      },
-
-      inner: {
-        lower: {
-          left: rotateBy(center, extInner, angle),
-          right: rotateBy(center, extInner, -angle)
-        }
-      },
-      outer: {
-        lower: {
-          left: rotateBy(center, extOuter, angle),
-          right: rotateBy(center, extOuter, -angle)
-        }
-      }
-    };
-
-    function rotateBy(center, penta, angle) {
-      return penta.clone().rotate(angle, center.getCenter())
-    };
-  };
-
-  console.log('pentaTree');
-  console.log(this.pentaTree);
-}
-
-/**
- * Creates the same structure as pentaTree but
- * instead of Pentas the styleTree's leafs are canvas2D style properties.
- */
-GoldenBody.prototype.createStyleTree = function() {
-  let PS = goldenContext.pentaStyle;
-
-  let mainStyles = {
-    lineWidth: 1.5,
-    middle: PS.all(PS.strokes.dark.magenta, PS.fills.light.magenta),
-    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest),
-    inner: PS.all(PS.strokes.red, PS.fills.light.red)
-  }
-
-  let coreStyles = Object.assign({}, mainStyles);
-  coreStyles.lineWidth = 1;
-  coreStyles.middle = PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest);
-
-  let supersStyle = PS.all(
-    PS.fills.aShineOf.cyan(this.pentaTree.supers.upper),
-    PS.strokes.cyan,
-    PS.dashes.finest,
-  );
-
-  this.styleTree = mainStyles;
-  this.styleTree.cores = coreStyles;
-
-  this.styleTree.supers = {
-    upper: supersStyle,
-    lower: supersStyle
-  };
-
-  this.styleTree.extremities = {
-    upper: {
-      upper: mainStyles,
-      lower: mainStyles
-    },
-    lower: mainStyles
-  };
-
-  this.styleTree.spots = {
-    strokeStyle: PS.colors.dark.cyan,
-    fillStyle: PS.colors.magenta
-  };
-  this.styleTree.spots.middle = PS.all(PS.strokes.yellow, PS.dashes.finest);
-  this.styleTree.spots.outer = PS.all(PS.strokes.cyan, PS.dashes.finest, PS.fills.cyan);
-  this.styleTree.spots.cores = {
-    outer: this.styleTree.spots.outer
-  };
-  this.styleTree.spots.inner = PS.all(PS.strokes.red, PS.dashes.finest, PS.fills.red);
-
-  console.log('styleTree');
-  console.log(this.styleTree);
-}
-
 GoldenBody.prototype.getPentaSubtree = function(propertyPathArray) {
   if (!propertyPathArray) return;
   let subtree = this.pentaTree;
   propertyPathArray.forEach((prop) => subtree = subtree[prop]);
   return subtree;
+}
+
+GoldenBody.prototype.getPentaSubtreeWithWildcards = function(propertyPathArray) {
+  if (!propertyPathArray) return;
+  let subtree = this.pentaTree;
+  return subtree;
+}
+/**
+ * creates a list of matching paths for the specified wildcard path.
+ *
+ * @param propertyPathArray: a property path containing wildcards
+ */
+GoldenBody.prototype.expandWildcards = function(tree, propertyPathArray) {
+  let matchingPaths = [];
+  matchPathRecursively(this.pentaTree, "", propertyPathArray);
+
+  /**
+   * With a wildcard as the last property in the path the complete subtree matches.
+   * With a wildcard in the middle of the path we need to look for the property after the wildcard in the path.
+   */
+  function matchPathRecursively(subtree, currentTraversedPath, remainingPathExpression, wildcard) {
+    let wildcardRemaining = remainingPathExpression[0] === "*";
+    let lastPathProperty = remainingPathExpression.length === 1;
+    let pathTerminated = remainingPathExpression.length === 0;
+    let childKeys = Object.keys(subtree);
+    let hasChildKeys = childKeys.length > 0;
+
+
+    if (pathTerminated) {
+      matchingPaths.push(currentTraversedPath);
+      return;
+    }
+    if (wildcardRemaining) {
+      if (lastPathProperty) {
+        subtreeToPathArray(subtree, currentTraversedPath) // the whole subtree is a match
+        return;
+      } else {
+
+        wildcard = true;
+
+        // check for the subsequent property anywhere in the path
+        // then continue with the remainingPathExpression
+        Object.keys(subtree).forEach((key) => {
+          // The current path is still valid if it either matches the next path property
+          if (key.toLowerCase() === remainingPathExpression[0].toLowerCase()) {
+            matchPathRecursively(subtree[key], currentTraversedPath.concat(key), remainingPathExpression.slice(1), wildcard);
+          }
+        });
+      }
+    }
+  }
+
+  function subtreeToPathArray(subtree) {
+    return Object.keys(subtree).reduce((pathArray, key) => {
+      // TODO
+      return pathArray;
+    });
+  }
 }

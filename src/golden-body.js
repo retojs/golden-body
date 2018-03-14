@@ -1,21 +1,21 @@
 let goldenContext = (function() {
 
-  let g = {
+  let gc = {
     size: 120,
     origin: [447, 470],
   };
 
-  g.canvas = document.getElementById('golden-body-canvas');
-  g.ctx = g.canvas.getContext('2d');
-  g.pentaStyle = new PentaStyles(g.ctx);
+  gc.canvas = document.getElementById('golden-body-canvas');
+  gc.ctx = gc.canvas.getContext('2d');
+  gc.pentaStyle = new PentaStyles(gc.ctx);
 
-  g.setup = function() {
+  gc.setup = function() {
     this.painter = new PentaPainter();
     this.goldenBody = new GoldenBody(this.origin, this.size, PM.deg90);
     this.painter.paintGoldenBody(this.goldenBody);
   }
 
-  return g;
+  return gc;
 })();
 
 goldenContext.setup();

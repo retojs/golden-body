@@ -1,6 +1,6 @@
 function PentaPainterOps() {
   this.ctx = goldenContext.ctx;
-  this.styler = new PentaStyler()
+  this.styler = new PentaTreeStyler()
 }
 
 PentaPainterOps.prototype.circle = function(penta, style, doFill) {

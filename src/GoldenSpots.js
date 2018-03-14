@@ -1,3 +1,19 @@
+/**
+ * Defines the appearence of a Penta's Golden Spots.
+ *
+ * @property penta: The Penta the Golden Spots are part of
+ * @property radius: The radius of each Golden Spot
+ * @property options: an object with property names matching PentaPainterOps methods.
+ *                    {
+ *                      fillCircle: canvas styles,
+ *                      drawCircle: canvas styles,
+ *                      fillStar: canvas styles,
+ *                      drawStar: canvas styles
+ *                    }
+ *
+ *                    Each property contains a list of canvas style properties
+ *                    which will be passed the matching PentaPainterOps method.
+ */
 function GoldenSpots(penta, radius, options) {
   this.penta = penta;
   this.radius = radius || 1;
@@ -12,7 +28,7 @@ GoldenSpots.prototype.clone = function(config) {
   let clone = new GoldenSpots();
   Object.assign(clone, this, config);
   if (config && config.options) {
-    // don't replace all options but overwrite single option properties
+    // don't just replace all options but overwrite single option properties
     clone.options = Object.assign({}, this.options, config.options);
   }
   return clone;
@@ -26,7 +42,10 @@ GoldenSpots.prototype.toString = function() {
 }
 
 /**
- * applies gradient functions to a specific spot with a specific position and radius
+ * Applies gradient functions in the Golden Spot's options property
+ * to a specific spot with a specific position and radius.
+ *
+ * This is a prerequisite for passing the styles to any PentaPainterOps.
  */
 GoldenSpots.prototype.getSpotOptions = function(spotPenta) {
   return Object.keys(this.options).reduce((options, key) => {
