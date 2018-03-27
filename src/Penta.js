@@ -11,7 +11,7 @@ function isPenta(obj) {
   return obj && obj.constructor && obj.constructor.name === 'Penta';
 }
 
-Penta.prototype.toString = function() {
+Penta.prototype.toString = function () {
   return "Penta: " +
     "center=[" + Math.round(this.x) + ", " + Math.round(this.y) + "]" +
     ", radius=" + Math.round(this.radius);
@@ -20,7 +20,7 @@ Penta.prototype.toString = function() {
 //
 // Initialization
 
-Penta.prototype.calc = function() {
+Penta.prototype.calc = function () {
   for (let i = 0; i < 5; i++) {
     this['p' + i] = [
       this.x - PM.px(this.radius, i * PM.deg72 + this.angle),
@@ -30,7 +30,7 @@ Penta.prototype.calc = function() {
   this.calcMore();
 };
 
-Penta.prototype.calcMore = function() {
+Penta.prototype.calcMore = function () {
   let dx = this.p1[0] - this.p0[0];
   let dy = this.p1[1] - this.p0[1];
   this.sideWidth = PM.d(this.p0, this.p1);
@@ -39,7 +39,7 @@ Penta.prototype.calcMore = function() {
   this.innerRadius = PM.innerRadius(this);
 };
 
-Penta.prototype.clone = function(config) {
+Penta.prototype.clone = function (config) {
   let clone = new Penta();
   Object.assign(clone, this, config);
   clone.calc();
@@ -49,25 +49,25 @@ Penta.prototype.clone = function(config) {
 //
 // Accessors
 
-Penta.prototype.getCenter = function() {
+Penta.prototype.getCenter = function () {
   return [this.x, this.y];
 }
 
 //
 // Modifiers
 
-Penta.prototype.move = function(delta) {
+Penta.prototype.move = function (delta) {
   this.x += delta[0];
   this.y += delta[1];
   this.calc();
   return this;
 };
 
-Penta.moveAll = function(pentas, delta) {
+Penta.moveAll = function (pentas, delta) {
   pentas.forEach((p) => p.move(delta));
 };
 
-Penta.prototype.resize = function(value) {
+Penta.prototype.resize = function (value) {
   if ('' + value === '' + parseInt(value)) { // if factor is integer
     this.radius = value; // then set value as new radius
   } else { // if value is float
@@ -77,7 +77,7 @@ Penta.prototype.resize = function(value) {
   return this;
 }
 
-Penta.prototype.rotate = function(angle, center) {
+Penta.prototype.rotate = function (angle, center) {
   this.angle += angle;
   let d = PM.rotate([this.x, this.y], center, angle);
   this.x = d[0];
@@ -86,18 +86,18 @@ Penta.prototype.rotate = function(angle, center) {
   return this;
 }
 
-Penta.prototype.setAngle = function(angle) {
+Penta.prototype.setAngle = function (angle) {
   this.angle = angle;
   this.calc();
   return this;
 };
 
-Penta.prototype.setStyle = function(style) {
+Penta.prototype.setStyle = function (style) {
   this.style = style;
   return this;
 };
 
-Penta.prototype.addStyle = function(style) {
+Penta.prototype.addStyle = function (style) {
   this.style = Object.assign(this.style, style);
   return this;
 };
@@ -105,7 +105,7 @@ Penta.prototype.addStyle = function(style) {
 //
 // Factory functions
 
-Penta.prototype.createEdges = function(radius) {
+Penta.prototype.createEdges = function (radius) {
   return [
     new Penta(this.p0, radius, this.angle),
     new Penta(this.p1, radius, this.angle),
@@ -115,14 +115,14 @@ Penta.prototype.createEdges = function(radius) {
   ];
 };
 
-Penta.prototype.createCore = function() {
+Penta.prototype.createCore = function () {
   return this.clone({
     radius: this.radius * PM.gold_ * PM.gold_,
     angle: this.angle + PM.deg36
   })
 };
 
-Penta.prototype.createInner = function(style) {
+Penta.prototype.createInner = function (style) {
   return new Penta(
     this.getCenter(),
     this.innerRadius,
@@ -130,10 +130,18 @@ Penta.prototype.createInner = function(style) {
     style);
 };
 
-Penta.prototype.getOuter = function(style) {
+Penta.prototype.createOuter = function (style) {
   return new Penta(
     this.getCenter(),
     this.outerRadius,
     this.angle + PM.deg36,
+    style);
+};
+
+Penta.prototype.createSub = function (style) {
+  return new Penta(
+    [this.x, this.y + this.radius],
+    this.radius * PM.gold_,
+    this.angle,
     style);
 };

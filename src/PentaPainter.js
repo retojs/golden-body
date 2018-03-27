@@ -28,7 +28,7 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
    */
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      //this.paintSubtreePentas(goldenBody, 'supers');
+      this.paintSubtreePentas(goldenBody, 'supers');
       //  this.paintSubtreePentas(goldenBody, 'extremities');
       this.paintSubtreePentas(goldenBody, 'inner');
       this.paintSubtreePentas(goldenBody, 'outer');
@@ -36,10 +36,12 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
       this.paintSubtreePentas(goldenBody, 'outerExtremities');
 
       //this.paintSubtreePentas(goldenBody, 'cores');
-      //this.paintSubtreeSpots(goldenBody, 'inner.upper');
-      //this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
-      //  this.paintSubtreeSpots(goldenBody, 'outer');
-      //  this.paintSubtreeSpots(goldenBody, 'cores');
+
+      this.paintSubtreeSpots(goldenBody, 'inner.upper');
+      this.paintSubtreeSpots(goldenBody, 'inner.lower');
+    //  this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
+       this.paintSubtreeSpots(goldenBody, 'outer');
+       //this.paintSubtreeSpots(goldenBody, 'cores');
     });
 };
 

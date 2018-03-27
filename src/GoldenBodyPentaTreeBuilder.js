@@ -25,16 +25,15 @@ function createPentaTree(goldenBody) {
     angle: outerUpper.angle + PM.deg36
   });
 
-  let middle = innerUpper.clone({
-    radius: innerUpper.radius * PM.gold_
-  });
+  let middle = innerUpper.createSub();
 
   let outerLower = middle.clone({
     radius: middle.outerRadius
   })
-  outerLower.move([0, outerUpper.radius + outerLower.radius]);
+  outerLower.move([0, outerUpper.radius - innerUpper.radius + outerLower.radius]);
 
-  let innerLower = middle.clone({
+  let innerLower = innerUpper.clone({
+    radius: innerUpper.radius * PM.gold_,
     angle: middle.angle + PM.deg180
   });
   innerLower.move([0, outerUpper.radius + outerLower.radius]);
@@ -44,8 +43,6 @@ function createPentaTree(goldenBody) {
     angle: middle.angle + PM.deg36
   });
   lowerMiddle.move([0, outerUpper.radius + outerLower.radius - innerLower.radius]);
-
-  middle.move([0, innerUpper.radius]);
 
   //
   // Supers (large blue)

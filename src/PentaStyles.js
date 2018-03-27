@@ -113,7 +113,7 @@ function PentaStyles(ctx) {
   };
 
   this.fills.aGlowOf = {
-    white: this.makeAShineOf(this.colors.white),
+    white: this.makeAGlowOf(this.colors.white),
     red: this.makeAGlowOf(this.colors.red),
     green: this.makeAGlowOf(this.colors.green),
     blue: this.makeAGlowOf(this.colors.blue),
@@ -150,30 +150,30 @@ PS.prototype.colorFromString = function(colorStr) {
   return values.split(',').map(str => parseInt(str));
 };
 
-PS.prototype.radialGradient = function(penta, color0, color1) {
-  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, penta.radius, penta.x, penta.y, 0.3 * penta.radius);
-  gradient.addColorStop(0, color0);
-  gradient.addColorStop(1, color1);
+PS.prototype.radialGradient = function(penta, innerColor, outerColor, range) {
+  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, range * penta.radius, penta.x, penta.y, penta.radius);
+  gradient.addColorStop(0, innerColor);
+  gradient.addColorStop(1, outerColor);
   return this.fill(gradient);
 };
 
-PS.prototype.getRadialGradientMaker = function(innerColor, outerColor) {
+PS.prototype.getRadialGradientMaker = function(innerColor, outerColor, range) {
   let that = this;
   return function(penta) {
-    return that.radialGradient(penta, innerColor, outerColor);
+    return that.radialGradient(penta, innerColor, outerColor, range);
   }
 };
 
 PS.prototype.makeAShineOf = function(color) {
   let otherColor = this.alpha(color, 0);
-  color = this.alpha(color, 2 * this.lightAlpha);
-  return this.getRadialGradientMaker(color, otherColor);
+  color = this.alpha(color, this.lightAlpha);
+  return this.getRadialGradientMaker(otherColor, color, PM.gold_);
 };
 
 PS.prototype.makeAGlowOf = function(color) {
   let otherColor = this.alpha(color, 0);
-  color = this.alpha(color, 2 * this.lightAlpha);
-  return this.getRadialGradientMaker(otherColor, color);
+  color = this.alpha(color, this.lightAlpha * 2);
+  return this.getRadialGradientMaker(color, otherColor, PM.gold_);
 };
 
 PS.prototype.brightIncrement = 100;
