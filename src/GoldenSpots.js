@@ -1,7 +1,6 @@
 /**
- * Defines the appearence of a Penta's Golden Spots.
+ * Defines the appearence of Golden Spots.
  *
- * @property penta: The Penta the Golden Spots are part of
  * @property radius: The radius of each Golden Spot
  * @property options: an object with property names matching PentaPainterOps methods.
  *                    {
@@ -14,8 +13,7 @@
  *                    Each property contains a list of canvas style properties
  *                    which will be passed the matching PentaPainterOps method.
  */
-function GoldenSpots(penta, radius, options) {
-  this.penta = penta;
+function GoldenSpots(radius, options) {
   this.radius = radius || 1;
   this.options = options;
 }
@@ -36,7 +34,6 @@ GoldenSpots.prototype.clone = function(config) {
 
 GoldenSpots.prototype.toString = function() {
   return "GoldenSpots: " +
-    "penta.center=[" + Math.round(this.penta.x) + ", " + Math.round(this.penta.y) + "]" +
     ", radius=" + Math.round(this.radius) +
     ", options=" + this.options;
 }

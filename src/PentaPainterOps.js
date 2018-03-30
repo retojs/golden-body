@@ -4,7 +4,7 @@ function PentaPainterOps() {
 }
 
 PentaPainterOps.prototype.circle = function(penta, style, doFill) {
-  this.styler.applyStyles(style || penta.style);
+  this.styler.applyStyles(penta, style || penta.style);
 
   this.ctx.beginPath(penta.x, penta.y);
   this.ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
@@ -16,7 +16,7 @@ PentaPainterOps.prototype.fillCircle = function(penta, style) {
 };
 
 PentaPainterOps.prototype.pentagon = function(penta, style, doFill) {
-  this.styler.applyStyles(style || penta.style);
+  this.styler.applyStyles(penta, style || penta.style);
 
   this.ctx.beginPath();
   this.ctx.moveTo.apply(this.ctx, penta.p4);
@@ -31,7 +31,7 @@ PentaPainterOps.prototype.fillPentagon = function(penta, style) {
 }
 
 PentaPainterOps.prototype.pentagram = function(penta, style) {
-  this.styler.applyStyles(style || penta.style);
+  this.styler.applyStyles(penta, style || penta.style);
 
   this.ctx.beginPath();
   this.ctx.moveTo.apply(this.ctx, penta.p3);
@@ -42,7 +42,7 @@ PentaPainterOps.prototype.pentagram = function(penta, style) {
 };
 
 PentaPainterOps.prototype.fillPentagram = function(penta, style) {
-  this.styler.applyStyles(style || penta.style);
+  this.styler.applyStyles(penta, style || penta.style);
 
   let core = penta.createCore();
 
@@ -57,7 +57,7 @@ PentaPainterOps.prototype.fillPentagram = function(penta, style) {
 };
 
 PentaPainterOps.prototype.star = function(penta, style) {
-  this.styler.applyStyles(style || penta.style);
+  this.styler.applyStyles(penta, style || penta.style);
 
   let core = penta.createCore();
 

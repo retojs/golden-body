@@ -12,8 +12,8 @@ function createStyleTree(goldenBody) {
     outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest),
     inner: PS.all(PS.strokes.red, PS.fills.light.red)
   }
-  mainStyles.middle.upper = PS.fills.aGlowOf.magenta(goldenBody.pentaTree.middle.upper);
-  mainStyles.middle.lower = PS.fills.aGlowOf.magenta(goldenBody.pentaTree.middle.lower);
+  mainStyles.middle.upper = PS.fills.aGlowOf.magenta;
+  mainStyles.middle.lower = PS.fills.aGlowOf.magenta;
 
   let coreStyles = copy(mainStyles);
 
@@ -26,8 +26,8 @@ function createStyleTree(goldenBody) {
   goldenBody.styleTree.cores = copy(coreStyles);
 
   goldenBody.styleTree.supers = {
-    upper: copy(supersStyle, PS.fills.aShineOf.cyan(goldenBody.pentaTree.supers.upper)),
-    lower: copy(supersStyle, PS.fills.aShineOf.cyan(goldenBody.pentaTree.supers.lower))
+    upper: copy(supersStyle, PS.fills.aShineOf.cyan),
+    lower: copy(supersStyle, PS.fills.aShineOf.cyan)
   };
 
   goldenBody.styleTree.extremities = {
@@ -50,14 +50,6 @@ function createStyleTree(goldenBody) {
     left: copy(outerExtremitiesStyles),
     right: copy(outerExtremitiesStyles)
   };
-
-  goldenBody.styleTree.spots = PS.all(PS.strokes.dark.cyan);
-  goldenBody.styleTree.spots.middle = PS.all(PS.strokes.yellow, PS.dashes.finest);
-  goldenBody.styleTree.spots.outer = PS.all(PS.strokes.dark.cyan, PS.dashes.finest);
-  goldenBody.styleTree.spots.cores = {
-    outer: copy(goldenBody.styleTree.spots.outer)
-  };
-  goldenBody.styleTree.spots.inner = PS.all(PS.strokes.red, PS.dashes.finest);
 
   function copy(object, config) {
     return Object.assign({}, object, config);

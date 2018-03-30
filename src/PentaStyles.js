@@ -136,7 +136,7 @@ let PS = PentaStyles;
 //
 // colors
 
-PS.prototype.color = function(r, g, b, a) {
+PS.prototype.color = function (r, g, b, a) {
   r = Math.min(255, Math.max(0, Math.round(r)));
   g = Math.min(255, Math.max(0, Math.round(g)));
   b = Math.min(255, Math.max(0, Math.round(b)));
@@ -144,42 +144,44 @@ PS.prototype.color = function(r, g, b, a) {
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 };
 
-PS.prototype.colorFromString = function(colorStr) {
+PS.prototype.colorFromString = function (colorStr) {
   colorStr = colorStr.trim();
   let values = colorStr.substring(5, colorStr.length - 1);
   return values.split(',').map(str => parseInt(str));
 };
 
-PS.prototype.radialGradient = function(penta, innerColor, outerColor, range) {
+PS.prototype.radialGradient = function (penta, innerColor, outerColor, range) {
   let gradient = this.ctx.createRadialGradient(penta.x, penta.y, range * penta.radius, penta.x, penta.y, penta.radius);
   gradient.addColorStop(0, innerColor);
   gradient.addColorStop(1, outerColor);
-  return this.fill(gradient);
+  return gradient;
 };
 
-PS.prototype.getRadialGradientMaker = function(innerColor, outerColor, range) {
+PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor, range) {
   let that = this;
-  return function(penta) {
-    return that.radialGradient(penta, innerColor, outerColor, range);
+  return {
+    fillStyle: function (penta) {
+      return that.radialGradient(penta, innerColor, outerColor, range)
+    }
   }
 };
 
-PS.prototype.makeAShineOf = function(color) {
-  let otherColor = this.alpha(color, 0);
+PS.prototype.makeAShineOf = function (color) {
+  let transparentColor = this.alpha(color, 0);
   color = this.alpha(color, this.lightAlpha);
-  return this.getRadialGradientMaker(otherColor, color, PM.gold_);
+  return this.getRadialGradientFillStyleMaker(transparentColor, color, PM.gold_);
 };
 
-PS.prototype.makeAGlowOf = function(color) {
-  let otherColor = this.alpha(color, 0);
+PS.prototype.makeAGlowOf = function (color) {
+  let transparentColor = this.alpha(color, 0);
   color = this.alpha(color, this.lightAlpha * 2);
-  return this.getRadialGradientMaker(color, otherColor, PM.gold_);
+  return this.getRadialGradientFillStyleMaker(color, transparentColor, PM.gold_);
 };
 
 PS.prototype.brightIncrement = 100;
 PS.prototype.darkDecrement = -100;
 
-PS.prototype.bright = function(colorStr, brightIncrement) {
+PS.prototype.bright = function (colorStr, brightIncrement) {
   brightIncrement = brightIncrement || this.brightIncrement;
   let rgba = this.colorFromString(colorStr);
   return this.color(
@@ -190,42 +192,42 @@ PS.prototype.bright = function(colorStr, brightIncrement) {
   );
 };
 
-PS.prototype.dark = function(colorStr, darkDecrement) {
+PS.prototype.dark = function (colorStr, darkDecrement) {
   return this.bright(colorStr, darkDecrement || this.darkDecrement)
 };
 
-PS.prototype.alpha = function(colorStr, alpha) {
+PS.prototype.alpha = function (colorStr, alpha) {
   let rgba = this.colorFromString(colorStr);
   return this.color(rgba[0], rgba[1], rgba[2], alpha);
 };
 
 PS.prototype.lightAlpha = 0.25;
 
-PS.prototype.light = function(colorStr, lightAlpha) {
+PS.prototype.light = function (colorStr, lightAlpha) {
   return this.alpha(colorStr, lightAlpha || this.lightAlpha);
 };
 
 //
 // style properties
 
-PS.prototype.stroke = function(color) {
+PS.prototype.stroke = function (color) {
   return {
     strokeStyle: color
   };
 };
 
-PS.prototype.fill = function(color) {
+PS.prototype.fill = function (color) {
   return {
     fillStyle: color
   };
 };
 
-PS.prototype.lineWidth = function(width) {
+PS.prototype.lineWidth = function (width) {
   return {
     lineWidth: width
   };
 }
 
-PS.prototype.all = function(...styles) {
+PS.prototype.all = function (...styles) {
   return Object.assign.apply(Object.assign, [{}].concat(styles));
 };

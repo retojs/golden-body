@@ -30,7 +30,7 @@ function createPentaTree(goldenBody) {
   let outerLower = middle.clone({
     radius: middle.outerRadius
   })
-  outerLower.move([0, outerUpper.radius - innerUpper.radius + outerLower.radius]);
+  outerLower.move([0, outerUpper.radius + outerLower.radius - innerUpper.radius]);
 
   let innerLower = innerUpper.clone({
     radius: innerUpper.radius * PM.gold_,
@@ -59,31 +59,35 @@ function createPentaTree(goldenBody) {
 
   //
   // Golden spots
-
+  let defaultSpotRadius = goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_;
   let defaultSpots = new GoldenSpots(
-    outerUpper,
-    middle.radius * PM.gold_ * PM.gold_ * PM.gold_, {
-      fillCircle: PS.fills.aShineOf.cyan,
-      drawCircle: PS.strokes.bright.cyan,
+    defaultSpotRadius, {
+      fillCircle: PS.fills.aGlowOf.white,
+      // drawCircle: PS.strokes.bright.cyan,
       fillStar: PS.fills.yellow,
-      drawStar: PS.strokes.dark.red
+      drawStar: PS.strokes.dark.cyan
+    }
+  );
+  let innerSpots = new GoldenSpots(
+    defaultSpotRadius, {
+      fillCircle: PS.fills.aGlowOf.red,
+      fillStar: PS.fills.yellow,
+      drawStar: PS.strokes.dark.red,
+    }
+  );
+  let middleSpots = new GoldenSpots(
+    defaultSpotRadius, {
+      fillCircle: PS.fills.aGlowOf.magenta,
+      fillStar: PS.fills.bright.yellow,
+      drawStar: PS.strokes.dark.magenta,
     }
   );
 
   outerUpper.goldenSpots = defaultSpots.clone();
   outerLower.goldenSpots = defaultSpots.clone();
-  innerUpper.goldenSpots = defaultSpots.clone({
-    options: {
-      fillCircle: PS.fills.aShineOf.red,
-      drawCircle: PS.strokes.red,
-    }
-  });
-  innerLower.goldenSpots = defaultSpots.clone({
-    radius: defaultSpots.radius * 1.2,
-    options: {
-      fillCircle: PS.fills.aGlowOf.yellow
-    }
-  });
+  innerUpper.goldenSpots = innerSpots.clone();
+  innerLower.goldenSpots = innerSpots.clone();
+  middle.goldenSpots = middleSpots.clone();
 
   goldenBody.pentaTree = {
 

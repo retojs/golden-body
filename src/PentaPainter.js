@@ -1,5 +1,6 @@
 function PentaPainter() {
   this.ctx = goldenContext.ctx;
+  this.pentaTreeStyler = new PentaTreeStyler();
 
   // golden proportions
   this.bgrImageUrl = 'https://dl.dropboxusercontent.com/s/l6qxx5gssmovn8n/physiological-model--golden-proportion-format.png';
@@ -15,7 +16,7 @@ function PentaPainter() {
  * Paints each Penta of the specified Golden Body.
  * The applicable canvas styles are collected from the Golden Body's style tree (cascading).
  */
-PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
+PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
 
   createStyleTree(goldenBody);
 
@@ -29,23 +30,25 @@ PentaPainter.prototype.paintGoldenBody = function(goldenBody) {
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
       this.paintSubtreePentas(goldenBody, 'supers');
-      //  this.paintSubtreePentas(goldenBody, 'extremities');
+      // this.paintSubtreePentas(goldenBody, 'extremities');
       this.paintSubtreePentas(goldenBody, 'inner');
       this.paintSubtreePentas(goldenBody, 'outer');
       this.paintSubtreePentas(goldenBody, 'middle.upper');
       this.paintSubtreePentas(goldenBody, 'outerExtremities');
 
-      //this.paintSubtreePentas(goldenBody, 'cores');
+      // this.paintSubtreePentas(goldenBody, 'cores');
 
+      this.paintSubtreeSpots(goldenBody, 'outer');
       this.paintSubtreeSpots(goldenBody, 'inner.upper');
       this.paintSubtreeSpots(goldenBody, 'inner.lower');
-    //  this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
-       this.paintSubtreeSpots(goldenBody, 'outer');
-       //this.paintSubtreeSpots(goldenBody, 'cores');
+      this.paintSubtreeSpots(goldenBody, 'middle');
+
+      // this.paintSubtreeSpots(goldenBody, 'cores');
+      // this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
     });
 };
 
-PentaPainter.prototype.asArray = function(propertyPath) {
+PentaPainter.prototype.asArray = function (propertyPath) {
   if (!propertyPath) return [];
   if (Array.isArray(propertyPath)) return propertyPath;
   if (typeof propertyPath === 'string') {
@@ -56,12 +59,12 @@ PentaPainter.prototype.asArray = function(propertyPath) {
   }
 };
 
-PentaPainter.prototype.paintSubtreePentas = function(goldenBody, propertyPath) {
+PentaPainter.prototype.paintSubtreePentas = function (goldenBody, propertyPath) {
   let propertyPathArray = this.asArray(propertyPath);
   this.paintSubtreePentasRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
-PentaPainter.prototype.paintSubtreePentasRecursively = function(goldenBody, subtree, propertyPathArray) {
+PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
   propertyPathArray = propertyPathArray || [];
 
@@ -70,7 +73,7 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function(goldenBody, subt
     let nextPath = propertyPathArray;
     let ops = new PentaPainterOps();
 
-    new PentaTreeStyler().applyTreeStyles(goldenBody.styleTree, nextPath);
+    this.pentaTreeStyler.applyTreeStyles(goldenBody.styleTree, nextPath, penta);
 
     ops.circle(penta);
     ops.pentagon(penta);
@@ -120,7 +123,7 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function(goldenBody, subt
   }
 };
 
-PentaPainter.prototype.paintSubtreeSpots = function(goldenBody, propertyPath) {
+PentaPainter.prototype.paintSubtreeSpots = function (goldenBody, propertyPath) {
   let propertyPathArray = this.asArray(propertyPath);
   this.paintSubtreeSpotsRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
@@ -129,14 +132,13 @@ PentaPainter.prototype.paintSubtreeSpots = function(goldenBody, propertyPath) {
  * Paints the Golden Spots of each Penta in the Penta Tree by calling this.paintPentaSpots(penta)
  * after having applied all the corresponding styles from the Golden Body's styles tree.
  */
-PentaPainter.prototype.paintSubtreeSpotsRecursively = function(goldenBody, subtree, propertyPathArray) {
+PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
   propertyPathArray = propertyPathArray || [];
 
   if (isPenta(subtree)) {
     if (subtree.goldenSpots) {
-      new PentaTreeStyler().applyTreeStyles(goldenBody.styleTree, ["spots"].concat(propertyPathArray));
-      this.paintPentaSpots(subtree);
+      this.paintPentaSpots(subtree, goldenBody.styleTree, ["spots"].concat(propertyPathArray));
     }
   } else {
     Object.keys(subtree).forEach(key => {
@@ -149,11 +151,12 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function(goldenBody, subtr
  * Creates a Penta for each Golden Spot by calling penta.createEdges(radius)
  * and paints these Pentas as stars with the styles defined in penta.goldenSpots.options.
  */
-PentaPainter.prototype.paintPentaSpots = function(penta) {
+PentaPainter.prototype.paintPentaSpots = function (penta, styleTree, propertyPath) {
   if (penta.goldenSpots) {
     let ops = new PentaPainterOps();
     let spots = penta.createEdges(penta.goldenSpots.radius);
     spots.forEach((spot) => {
+      this.pentaTreeStyler.applyTreeStyles(styleTree, propertyPath, spot);
       let options = penta.goldenSpots.getSpotOptions(spot);
       if (options.fillCircle) {
         ops.fillCircle(spot, options.fillCircle);
