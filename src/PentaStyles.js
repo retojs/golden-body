@@ -75,6 +75,7 @@ function PentaStyles(ctx) {
   };
 
   this.fills = {
+    transparent: this.fill(this.colors.transparent.black),
     white: this.fill(this.colors.white),
     red: this.fill(this.colors.red),
     green: this.fill(this.colors.green),
@@ -150,18 +151,18 @@ PS.prototype.colorFromString = function (colorStr) {
   return values.split(',').map(str => parseInt(str));
 };
 
-PS.prototype.radialGradient = function (penta, innerColor, outerColor, range) {
-  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, range * penta.radius, penta.x, penta.y, penta.radius);
+PS.prototype.radialGradient = function (penta, innerColor, outerColor, rangeFrom, rangeTo) {
+  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, rangeFrom * penta.radius, penta.x, penta.y, rangeTo * penta.radius);
   gradient.addColorStop(0, innerColor);
   gradient.addColorStop(1, outerColor);
   return gradient;
 };
 
-PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor, range) {
+PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor, rangeFrom, rangeTo) {
   let that = this;
   return {
     fillStyle: function (penta) {
-      return that.radialGradient(penta, innerColor, outerColor, range)
+      return that.radialGradient(penta, innerColor, outerColor, rangeFrom, rangeTo)
     }
   }
 };
@@ -169,13 +170,13 @@ PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor,
 PS.prototype.makeAShineOf = function (color) {
   let transparentColor = this.alpha(color, 0);
   color = this.alpha(color, this.lightAlpha);
-  return this.getRadialGradientFillStyleMaker(transparentColor, color, PM.gold_);
+  return this.getRadialGradientFillStyleMaker(transparentColor, color, PM.gold_, 1);
 };
 
 PS.prototype.makeAGlowOf = function (color) {
   let transparentColor = this.alpha(color, 0);
-  color = this.alpha(color, this.lightAlpha * 2);
-  return this.getRadialGradientFillStyleMaker(color, transparentColor, PM.gold_);
+  color = this.alpha(color, 1 - this.lightAlpha);
+  return this.getRadialGradientFillStyleMaker(color, transparentColor, 0, PM.out2in);
 };
 
 PS.prototype.brightIncrement = 100;

@@ -138,9 +138,17 @@ Penta.prototype.createOuter = function (style) {
     style);
 };
 
-Penta.prototype.createSub = function (style) {
+Penta.prototype.createPentagonExtension = function (style) {
+// TODO
+};
+
+Penta.prototype.createPentagramExtension = function (style) {
+  let offsetY = this.radius;
+  if (this.angle / PM.deg72 > 2) {
+    offsetY = -this.radius;
+  }
   return new Penta(
-    [this.x, this.y + this.radius],
+    [this.x, this.y + offsetY],
     this.radius * PM.gold_,
     this.angle,
     style);

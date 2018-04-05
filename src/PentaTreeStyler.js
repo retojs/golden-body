@@ -57,6 +57,36 @@ PentaTreeStyler.prototype.getStyleProps = function (style) {
   }, {});
 }
 
+PentaTreeStyler.prototype.assignProperties = function (source, target, propertyKeys) {
+  target = target || {};
+
+  if (!source) return target;
+  if (!propertyKeys) return target;
+
+  return Object.keys(source).reduce((result, key) => {
+    if (propertyKeys.indexOf(key) > -1) {
+      result[key] = source[key]
+    }
+    return result;
+  }, target);
+}
+
+PentaTreeStyler.prototype.getCascadingProperties = function (tree, propertyPathArray, propertyKeys) {
+  let result = {};
+  let node = tree;
+
+  if (!node) return result;
+  if (!propertyKeys) return result;
+
+  for (let i = 0; i < propertyPathArray.length; i++) {
+    if (!node) break;
+    let property = propertyPathArray[i];
+    this.assignProperties(node, result, propertyKeys);
+    node = node[property];
+  }
+  return result;
+}
+
 PentaTreeStyler.prototype.applyStyles = function (penta, style, target) {
   target = target || this.ctx;
   if (style) {
@@ -83,6 +113,24 @@ PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, p
   this.logStyles();
 }
 
+/**
+ * WIP: a generic tree traversal with callback to execute per node
+ */
+PentaTreeStyler.prototype.genericApplyTreeStyles = function (tree, propertyPath, penta) {
+  if (!propertyPath) return;
+
+  initCallback();
+
+  propertyPath.reduce((subtree, property) => {
+    if (!subtree) return {};
+    nodeCallback(subtree, propertyPath, penta);
+    return subtree[property];
+  }, tree);
+
+  console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
+  this.logStyles();
+};
+
 PentaTreeStyler.prototype.applyStyleProps = function (style, penta) {
   let styleProps = this.getStyleProps(style)
   Object.keys(styleProps).forEach(key => {
@@ -100,7 +148,7 @@ PentaTreeStyler.prototype.applyStyleProps = function (style, penta) {
  */
 PentaTreeStyler.prototype.expandWildcards = function (propertyPathArray) {
   // TODO
-}
+};
 
 PentaTreeStyler.prototype.clearStyles = function () {
   this.ctx.strokeStyle = "#000";
@@ -112,4 +160,4 @@ PentaTreeStyler.prototype.clearStyles = function () {
 
 PentaTreeStyler.prototype.logStyles = function () {
   this.styleProperties.forEach(prop => console.log(prop, "=", this.ctx[prop]));
-}
+};

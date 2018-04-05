@@ -4,6 +4,9 @@ function PentaPainter() {
 
   // golden proportions
   this.bgrImageUrl = 'https://dl.dropboxusercontent.com/s/l6qxx5gssmovn8n/physiological-model--golden-proportion-format.png';
+  this.bgrImageWidth = 900;
+  this.bgrImageHeight = 1456;
+  goldenContext.bgrImageProportion = this.bgrImageHeight / this.bgrImageWidth;
 
   // close-up
   //this.bgrImageUrl = 'https://dl.dropboxusercontent.com/s/3covvimcz5gfrui/golden-spots--physiological-model--square-1004px.png';
@@ -20,6 +23,9 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
 
   createStyleTree(goldenBody);
 
+  // this.ctx.scale(goldenContext.zoom || 1, goldenContext.zoom || 1);
+  // this.ctx.translate(goldenContext.canvas.width, 2.0);
+
   this.ctx.setLineDash(goldenContext.pentaStyle.dashes.none);
 
   /**
@@ -29,22 +35,23 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
    */
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      this.paintSubtreePentas(goldenBody, 'supers');
-      // this.paintSubtreePentas(goldenBody, 'extremities');
+      // this.paintSubtreePentas(goldenBody, 'supers');
+      this.paintSubtreePentas(goldenBody, 'supers.middle');
+
       this.paintSubtreePentas(goldenBody, 'inner');
       this.paintSubtreePentas(goldenBody, 'outer');
-      this.paintSubtreePentas(goldenBody, 'middle.upper');
-      this.paintSubtreePentas(goldenBody, 'outerExtremities');
+      this.paintSubtreePentas(goldenBody, 'middle');
 
-      // this.paintSubtreePentas(goldenBody, 'cores');
+      // this.paintSubtreePentas(goldenBody, 'extremities');
+      // this.paintSubtreePentas(goldenBody, 'outerExtremities');   
+      this.paintSubtreePentas(goldenBody, 'cores');
 
       this.paintSubtreeSpots(goldenBody, 'outer');
-      this.paintSubtreeSpots(goldenBody, 'inner.upper');
-      this.paintSubtreeSpots(goldenBody, 'inner.lower');
+      this.paintSubtreeSpots(goldenBody, 'inner');
       this.paintSubtreeSpots(goldenBody, 'middle');
 
       // this.paintSubtreeSpots(goldenBody, 'cores');
-      // this.paintSubtreeSpots(goldenBody, 'cores.outer.lower');
+      this.paintSubtreeSpots(goldenBody, 'cores.outer');
     });
 };
 
@@ -75,9 +82,9 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, sub
 
     this.pentaTreeStyler.applyTreeStyles(goldenBody.styleTree, nextPath, penta);
 
-    ops.circle(penta);
-    ops.pentagon(penta);
-    ops.pentagram(penta);
+    ops.drawCircle(penta);
+    ops.drawPentagon(penta);
+    ops.drawPentagram(penta);
     if (nextPath.indexOf('extremities') > -1) {
       this.ctx.setLineDash(goldenContext.pentaStyle.dashes.fine);
     }
@@ -137,9 +144,7 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subt
   propertyPathArray = propertyPathArray || [];
 
   if (isPenta(subtree)) {
-    if (subtree.goldenSpots) {
-      this.paintPentaSpots(subtree, goldenBody.styleTree, ["spots"].concat(propertyPathArray));
-    }
+    this.paintPentaSpots(goldenBody, subtree, propertyPathArray);
   } else {
     Object.keys(subtree).forEach(key => {
       this.paintSubtreeSpotsRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
@@ -151,25 +156,20 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subt
  * Creates a Penta for each Golden Spot by calling penta.createEdges(radius)
  * and paints these Pentas as stars with the styles defined in penta.goldenSpots.options.
  */
-PentaPainter.prototype.paintPentaSpots = function (penta, styleTree, propertyPath) {
-  if (penta.goldenSpots) {
-    let ops = new PentaPainterOps();
-    let spots = penta.createEdges(penta.goldenSpots.radius);
-    spots.forEach((spot) => {
-      this.pentaTreeStyler.applyTreeStyles(styleTree, propertyPath, spot);
-      let options = penta.goldenSpots.getSpotOptions(spot);
-      if (options.fillCircle) {
-        ops.fillCircle(spot, options.fillCircle);
-      }
-      if (options.drawCircle) {
-        ops.circle(spot, options.drawCircle);
-      }
-      if (options.fillStar) {
-        ops.fillPentagram(spot, options.fillStar)
-      }
-      if (options.drawStar) {
-        ops.star(spot, options.drawStar)
+PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPathArray) {
+  let ops = new PentaPainterOps();
+  let stylesPerOp = ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
+  let spots = penta.createEdges(goldenBody.styleTree.spots.radius);
+  spots.forEach((spot) => {
+    ops.opsList.forEach(op => {
+      if (typeof stylesPerOp[op] === 'boolean') {
+        if (stylesPerOp[op]) {
+          ops[op](spot);
+        }
+      } else if (stylesPerOp[op]) {
+        ops[op](spot, stylesPerOp[op]);
       }
     });
-  }
+  });
 }
+

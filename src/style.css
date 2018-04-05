@@ -7,6 +7,12 @@
 #golden-body-canvas {
   margin-bottom: 20px;
   margin-top: 20px;
+  overflow: scroll;
+}
+
+#canvas-image {
+  width: 32px;
+  height: 32px;
 }
 
 #golden-body-penta-tree, #golden-body-style-tree {
@@ -27,3 +33,4 @@
 #golden-body-style-tree {
   color: #ff0;
 }
+

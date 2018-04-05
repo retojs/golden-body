@@ -36,17 +36,17 @@ PM.deg36 = PM.deg180 / 5;
 /**
  * The ratio between the inner and the outer radius of a pentagon
  */
-PM.in2out = 1 / Math.cos(PM.deg36);
+PM.out2in = 1 / Math.cos(PM.deg36);
 
 //
 // Calculations
 
 PM.outerRadius = function(penta) {
-  return penta.radius * PM.in2out;
+  return penta.radius * PM.out2in;
 }
 
 PM.innerRadius = function(penta) {
-  return penta.radius / PM.in2out;
+  return penta.radius / PM.out2in;
 }
 
 /**

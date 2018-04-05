@@ -7,9 +7,10 @@ function createStyleTree(goldenBody) {
   let PS = goldenContext.pentaStyle;
 
   let mainStyles = {
-    lineWidth: 1.5,
+    lineWidth: 4 * 1.5,
+    fillStyle: PS.colors.transparent.black,
     middle: PS.strokes.dark.magenta,
-    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest),
+    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan),
     inner: PS.all(PS.strokes.red, PS.fills.light.red)
   }
   mainStyles.middle.upper = PS.fills.aGlowOf.magenta;
@@ -17,18 +18,63 @@ function createStyleTree(goldenBody) {
 
   let coreStyles = copy(mainStyles);
 
-  coreStyles.lineWidth = 1;
-  coreStyles.middle = PS.all(PS.strokes.cyan, PS.fills.light.cyan, PS.dashes.finest);
-
-  let supersStyle = PS.strokes.bright.cyan;
+  coreStyles.lineWidth = 4 * 1;
 
   goldenBody.styleTree = copy(mainStyles);
   goldenBody.styleTree.cores = copy(coreStyles);
+  //goldenBody.styleTree.cores.middle = copy(coreStyles,PS.fills.magenta)
 
   goldenBody.styleTree.supers = {
-    upper: copy(supersStyle, PS.fills.aShineOf.cyan),
-    lower: copy(supersStyle, PS.fills.aShineOf.cyan)
+    inner: {
+      upper: PS.all(PS.strokes.red, PS.fills.aShineOf.red),
+      lower: PS.all(PS.strokes.red, PS.fills.aShineOf.red)
+    },
+    outer: {
+      upper: PS.all(PS.strokes.bright.cyan, PS.fills.aShineOf.cyan),
+      lower: PS.all(PS.strokes.bright.cyan, PS.fills.aShineOf.cyan),
+    },
+    middle: {
+      upper: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta),
+      lower: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta)
+    }
   };
+
+  goldenBody.styleTree.spots = {
+    radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_,
+
+    inner: {
+      fillCircle: PS.fills.aGlowOf.red,
+      fillStar: PS.fills.yellow,
+      drawStar: PS.strokes.dark.red,
+
+      lower: {
+        radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_
+      }
+    },
+
+    outer: {
+      fillCircle: PS.fills.aGlowOf.cyan,
+      drawCircle: false,
+      fillStar: PS.fills.yellow,
+      drawStar: PS.strokes.dark.cyan,
+
+      upper: {
+        lineWidth: 12
+      }
+    },
+   
+    middle: {
+      fillCircle: PS.fills.aGlowOf.magenta,
+      fillStar: PS.fills.bright.yellow,
+      drawStar: PS.strokes.dark.magenta
+    },
+
+    cores: {
+      fillStar: PS.fills.red,
+      drawStar: PS.strokes.yellow,
+      fillCircle: PS.fills.aShineOf.yellow
+    }
+  }
 
   goldenBody.styleTree.extremities = {
     upper: {
