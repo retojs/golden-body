@@ -44,17 +44,30 @@ function PentaTreeStyler() {
   this.ctx = goldenContext.ctx;
 }
 
-/**
- * Returns a new object with those properties of the specified 'style' argument
- * with a name from the list of style properties above.
- */
-PentaTreeStyler.prototype.getStyleProps = function (style) {
-  return Object.keys(style).reduce((memo, key) => {
-    if (this.styleProperties.indexOf(key) > -1) {
-      memo[key] = style[key]
-    }
-    return memo
-  }, {});
+PentaTreeStyler.prototype.clearStyles = function () {
+  this.ctx.strokeStyle = "#000";
+  this.ctx.fillStyle = "#000";
+  this.ctx.lineWidth = 1;
+  this.ctx.lineJoin = 'round';
+  this.ctx.setLineDash([]);
+};
+
+PentaTreeStyler.prototype.getCascadingProperties = function (tree, propertyPathArray, propertyKeys) {
+  let result = {};
+  let node = tree;
+
+  if (!node) return result;
+  if (!propertyKeys) return result;
+
+  this.assignProperties(node, result, propertyKeys);
+
+  for (let i = 0; i < propertyPathArray.length; i++) {
+    if (!node) break;
+    let property = propertyPathArray[i];
+    node = node[property];
+    this.assignProperties(node, result, propertyKeys);
+  }
+  return result;
 }
 
 PentaTreeStyler.prototype.assignProperties = function (source, target, propertyKeys) {
@@ -71,68 +84,9 @@ PentaTreeStyler.prototype.assignProperties = function (source, target, propertyK
   }, target);
 }
 
-PentaTreeStyler.prototype.getCascadingProperties = function (tree, propertyPathArray, propertyKeys) {
-  let result = {};
-  let node = tree;
-
-  if (!node) return result;
-  if (!propertyKeys) return result;
-
-  for (let i = 0; i < propertyPathArray.length; i++) {
-    if (!node) break;
-    let property = propertyPathArray[i];
-    this.assignProperties(node, result, propertyKeys);
-    node = node[property];
-  }
-  return result;
-}
-
-PentaTreeStyler.prototype.applyStyles = function (penta, style, target) {
-  target = target || this.ctx;
-  if (style) {
-    this.applyStyleProps(style, penta);
-  }
-  return target;
-};
-
-/**
- * Traverses the specified style tree along the specified property path and
- * assigns all style properties to this.ctx in each step.
- */
-PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, penta) {
-  if (!propertyPath) return;
-
-  this.clearStyles();
-  propertyPath.concat(['sentinel']).reduce((style, property) => {
-    if (!style) return {};
-    this.applyStyleProps(style, penta);
-    return style[property];
-  }, styleTree);
-
-  console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
-  this.logStyles();
-}
-
-/**
- * WIP: a generic tree traversal with callback to execute per node
- */
-PentaTreeStyler.prototype.genericApplyTreeStyles = function (tree, propertyPath, penta) {
-  if (!propertyPath) return;
-
-  initCallback();
-
-  propertyPath.reduce((subtree, property) => {
-    if (!subtree) return {};
-    nodeCallback(subtree, propertyPath, penta);
-    return subtree[property];
-  }, tree);
-
-  console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
-  this.logStyles();
-};
-
-PentaTreeStyler.prototype.applyStyleProps = function (style, penta) {
-  let styleProps = this.getStyleProps(style)
+PentaTreeStyler.prototype.assignStyleProperties = function (styleProps, penta) {
+  if (!styleProps) return;
+  
   Object.keys(styleProps).forEach(key => {
     if (key === 'fillStyle' && typeof styleProps[key] === 'function') {
       styleProps[key] = styleProps[key](penta);
@@ -142,22 +96,32 @@ PentaTreeStyler.prototype.applyStyleProps = function (style, penta) {
 }
 
 /**
+ * Traverses the specified style tree along the specified property path and
+ * assigns all style properties to this.ctx in each step.
+ */
+PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, penta) {
+  if (!propertyPath) return;
+
+  this.clearStyles();
+
+  let styleProps = this.getCascadingProperties(styleTree, propertyPath, this.styleProperties);
+  this.assignStyleProperties(styleProps, penta);
+
+  // console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
+  // this.logStyles();
+}
+
+PentaTreeStyler.prototype.logStyles = function () {
+  this.styleProperties.forEach(prop => console.log(prop, "=", this.ctx[prop]));
+};
+
+
+
+/**
  * How to support wildcards in propertyPaths?
  * We need a preprocessor which searches all matching paths in the tree.
  * Then the found subtree should be rendered.
  */
 PentaTreeStyler.prototype.expandWildcards = function (propertyPathArray) {
   // TODO
-};
-
-PentaTreeStyler.prototype.clearStyles = function () {
-  this.ctx.strokeStyle = "#000";
-  this.ctx.fillStyle = "#000";
-  this.ctx.lineWidth = 1;
-  this.ctx.lineJoin = 'round';
-  this.ctx.setLineDash([]);
-};
-
-PentaTreeStyler.prototype.logStyles = function () {
-  this.styleProperties.forEach(prop => console.log(prop, "=", this.ctx[prop]));
 };

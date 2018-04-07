@@ -7,6 +7,14 @@ function createStyleTree(goldenBody) {
   let PS = goldenContext.pentaStyle;
 
   let mainStyles = {
+
+    drawCircle: true,
+    fillCircle: true,
+    drawPentagram: true,
+    fillPentagram: true,
+    drawPentagon: true,
+    fillPentagon: true,
+
     lineWidth: 4 * 1.5,
     fillStyle: PS.colors.transparent.black,
     middle: PS.strokes.dark.magenta,
@@ -25,6 +33,9 @@ function createStyleTree(goldenBody) {
   //goldenBody.styleTree.cores.middle = copy(coreStyles,PS.fills.magenta)
 
   goldenBody.styleTree.supers = {
+    drawCircle: false,
+    drawPentagon: false,
+    drawPentagram: false,
     inner: {
       upper: PS.all(PS.strokes.red, PS.fills.aShineOf.red),
       lower: PS.all(PS.strokes.red, PS.fills.aShineOf.red)
@@ -62,7 +73,7 @@ function createStyleTree(goldenBody) {
         lineWidth: 12
       }
     },
-   
+
     middle: {
       fillCircle: PS.fills.aGlowOf.magenta,
       fillStar: PS.fills.bright.yellow,

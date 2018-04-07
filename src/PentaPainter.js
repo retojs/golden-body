@@ -35,7 +35,7 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
    */
   new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      // this.paintSubtreePentas(goldenBody, 'supers');
+       this.paintSubtreePentas(goldenBody, 'supers.outer');
       this.paintSubtreePentas(goldenBody, 'supers.middle');
 
       this.paintSubtreePentas(goldenBody, 'inner');
@@ -66,6 +66,9 @@ PentaPainter.prototype.asArray = function (propertyPath) {
   }
 };
 
+//
+// paint Pentas
+
 PentaPainter.prototype.paintSubtreePentas = function (goldenBody, propertyPath) {
   let propertyPathArray = this.asArray(propertyPath);
   this.paintSubtreePentasRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
@@ -76,59 +79,31 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, sub
   propertyPathArray = propertyPathArray || [];
 
   if (isPenta(subtree)) {
-    let penta = subtree;
-    let nextPath = propertyPathArray;
-    let ops = new PentaPainterOps();
-
-    this.pentaTreeStyler.applyTreeStyles(goldenBody.styleTree, nextPath, penta);
-
-    ops.drawCircle(penta);
-    ops.drawPentagon(penta);
-    ops.drawPentagram(penta);
-    if (nextPath.indexOf('extremities') > -1) {
-      this.ctx.setLineDash(goldenContext.pentaStyle.dashes.fine);
-    }
-    if (nextPath.indexOf('outerExtremities') > -1) {
-      this.ctx.setLineDash(goldenContext.pentaStyle.dashes.fine);
-      if (nextPath.indexOf('shoulder') > -1) {
-        ops.fillPentagram(penta);
-      }
-      if (nextPath.indexOf('upperArm') > -1) {
-        ops.fillPentagram(penta);
-      }
-      if (nextPath.indexOf('hand') > -1) {
-        ops.fillPentagon(penta);
-        ops.fillPentagram(penta);
-      }
-      if (nextPath.indexOf('lowerHand') > -1) {
-        ops.fillPentagon(penta);
-      }
-    }
-
-    if (nextPath.indexOf('supers') > -1) {
-      ops.fillCircle(penta);
-      if (nextPath.indexOf('upper') > -1) {
-        ops.fillPentagon(penta);
-      }
-      if (nextPath.indexOf('lower') > -1) {
-        ops.fillPentagram(penta);
-      }
-    }
-    if (nextPath.indexOf('outer') > -1) {
-      ops.fillPentagram(penta);
-    }
-    if (nextPath.indexOf('inner') > -1) {
-      ops.fillPentagon(penta);
-    }
-    if (nextPath.indexOf('middle') > -1 || nextPath.indexOf('lowerMiddle') > -1) {
-      ops.fillPentagon(penta);
-    }
+   this.paintPenta(subtree, goldenBody.styleTree, propertyPathArray);
   } else {
     Object.keys(subtree).forEach(key => {
       this.paintSubtreePentasRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
     });
   }
 };
+
+PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArray) {
+  let ops = new PentaPainterOps();
+  let stylesPerOp = ops.getStylesPerOp(styleTree, propertyPathArray);
+  this.pentaTreeStyler.applyTreeStyles(styleTree, propertyPathArray, penta);  
+  ops.opsList.forEach(op => {
+    if (typeof stylesPerOp[op] === 'boolean') {
+      if (stylesPerOp[op]) {
+        ops[op](penta);
+      }
+    } else if (stylesPerOp[op]) {
+      ops[op](penta, stylesPerOp[op]);
+    }
+  });
+};
+
+//
+// paint Golden Spots
 
 PentaPainter.prototype.paintSubtreeSpots = function (goldenBody, propertyPath) {
   let propertyPathArray = this.asArray(propertyPath);
