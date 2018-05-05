@@ -1,5 +1,4 @@
 function PentaPainterOps() {
-  this.ctx = goldenContext.ctx;
   this.styler = new PentaTreeStyler()
 }
 
@@ -26,16 +25,16 @@ PentaPainterOps.prototype.getOpsFrom = function (obj) {
  * @param string[] propertyPathArray 
  */
 PentaPainterOps.prototype.getStylesPerOp = function (styleTree, propertyPathArray) {
-  let styler = new PentaTreeStyler();
-  return styler.getCascadingProperties(styleTree, propertyPathArray, this.opsList);
+  return this.styler.getCascadingProperties(styleTree, propertyPathArray, this.opsList);
 };
 
 PentaPainterOps.prototype.drawCircle = function (penta, style, doFill) {
+  let ctx = goldenContext.ctx;
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  this.ctx.beginPath(penta.x, penta.y);
-  this.ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
-  doFill ? this.ctx.fill() : this.ctx.stroke();
+  ctx.beginPath(penta.x, penta.y);
+  ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
+  doFill ? ctx.fill() : ctx.stroke();
 };
 
 PentaPainterOps.prototype.fillCircle = function (penta, style) {
@@ -43,14 +42,15 @@ PentaPainterOps.prototype.fillCircle = function (penta, style) {
 };
 
 PentaPainterOps.prototype.drawPentagon = function (penta, style, doFill) {
+  let ctx = goldenContext.ctx;
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  this.ctx.beginPath();
-  this.ctx.moveTo.apply(this.ctx, penta.p4);
+  ctx.beginPath();
+  ctx.moveTo.apply(ctx, penta.p4);
   for (let i = 0; i < 5; i++) {
-    this.ctx.lineTo.apply(this.ctx, penta['p' + i]);
+    ctx.lineTo.apply(ctx, penta['p' + i]);
   }
-  doFill ? this.ctx.fill() : this.ctx.stroke();
+  doFill ? ctx.fill() : ctx.stroke();
 };
 
 PentaPainterOps.prototype.fillPentagon = function (penta, style) {
@@ -58,45 +58,46 @@ PentaPainterOps.prototype.fillPentagon = function (penta, style) {
 }
 
 PentaPainterOps.prototype.drawPentagram = function (penta, style) {
+  let ctx = goldenContext.ctx;
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  this.ctx.beginPath();
-  this.ctx.moveTo.apply(this.ctx, penta.p3);
+  ctx.beginPath();
+  ctx.moveTo.apply(ctx, penta.p3);
   for (let i = 0; i < 10; i += 2) {
-    this.ctx.lineTo.apply(this.ctx, penta['p' + i % 5]);
+    ctx.lineTo.apply(ctx, penta['p' + i % 5]);
   }
-  this.ctx.stroke();
+  ctx.stroke();
 };
 
 PentaPainterOps.prototype.fillPentagram = function (penta, style) {
+  let ctx = goldenContext.ctx;
+  let core = penta.createCore();
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  let core = penta.createCore();
-
-  this.ctx.beginPath();
-  this.ctx.moveTo.apply(this.ctx, penta.p0);
-  this.ctx.lineTo.apply(this.ctx, core.p0);
+  ctx.beginPath();
+  ctx.moveTo.apply(ctx, penta.p0);
+  ctx.lineTo.apply(ctx, core.p0);
   for (let i = 0; i < 5; i++) {
-    this.ctx.lineTo.apply(this.ctx, penta['p' + i]);
-    this.ctx.lineTo.apply(this.ctx, core['p' + i]);
+    ctx.lineTo.apply(ctx, penta['p' + i]);
+    ctx.lineTo.apply(ctx, core['p' + i]);
   }
-  this.ctx.fill();
+  ctx.fill();
 };
 
 PentaPainterOps.prototype.drawStar = function (penta, style) {
+  let ctx = goldenContext.ctx;
+  let core = penta.createCore();
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  let core = penta.createCore();
-
-  this.ctx.beginPath();
-  this.ctx.moveTo.apply(this.ctx, penta.p0);
-  this.ctx.lineTo.apply(this.ctx, core.p0);
+  ctx.beginPath();
+  ctx.moveTo.apply(ctx, penta.p0);
+  ctx.lineTo.apply(ctx, core.p0);
   for (let i = 0; i < 5; i++) {
-    this.ctx.lineTo.apply(this.ctx, penta['p' + i]);
-    this.ctx.lineTo.apply(this.ctx, core['p' + i]);
+    ctx.lineTo.apply(ctx, penta['p' + i]);
+    ctx.lineTo.apply(ctx, core['p' + i]);
   }
-  this.ctx.lineTo.apply(this.ctx, penta.p0);
-  this.ctx.stroke();
+  ctx.lineTo.apply(ctx, penta.p0);
+  ctx.stroke();
 };
 
 
@@ -108,6 +109,7 @@ PentaPainterOps.prototype.fillStar = function (penta, style) {
  * Returns a promise that is resolved when the background image's onload event occurs.
  */
 PentaPainterOps.prototype.paintBgrImage = function (url) {
+  let ctx = goldenContext.ctx;
   let bgrImage = new Image();
   bgrImage.src = url;
 
@@ -121,7 +123,9 @@ PentaPainterOps.prototype.paintBgrImage = function (url) {
    */
   return new Promise((resolve, reject) => {
     bgrImage.onload = () => {
-      this.ctx.drawImage(bgrImage, 0, 4 * -120, goldenContext.canvas.width, goldenContext.canvas.width * goldenContext.bgrImageProportion);
+      if (!goldenContext.hideBgrImage) {
+        ctx.drawImage(bgrImage, 0, 4 * -120, goldenContext.canvas.width, goldenContext.canvas.width * goldenContext.bgrImageProportion);
+      }
       resolve();
     }
   });

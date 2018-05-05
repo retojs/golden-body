@@ -16,7 +16,7 @@ function createPentaTree(goldenBody) {
   // Golden Guideline:
   //  It's good practice to name local shortcut references to global variables
   //  in uppercase, like constants, since you should not change global variables.
-  let PS = goldenContext.pentaStyle;
+  let PS = goldenContext.pentaStyles;
 
   let outerUpper = goldenBody.root;
 
@@ -211,9 +211,6 @@ function createPentaTree(goldenBody) {
     return "GoldenBody.pentaTree = " +
       JSON.stringify(goldenBody.pentaTree, (key, value) => {
         if (isPenta(value)) {
-          return value.toString();
-        }
-        if (isGoldenSpots(value)) {
           return value.toString();
         }
         return value;

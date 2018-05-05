@@ -41,15 +41,15 @@ function PentaTreeStyler() {
     'lineWidth',
     'lineJoin'
   ];
-  this.ctx = goldenContext.ctx;
 }
 
 PentaTreeStyler.prototype.clearStyles = function () {
-  this.ctx.strokeStyle = "#000";
-  this.ctx.fillStyle = "#000";
-  this.ctx.lineWidth = 1;
-  this.ctx.lineJoin = 'round';
-  this.ctx.setLineDash([]);
+  let ctx = goldenContext.ctx;
+  ctx.strokeStyle = "#000";
+  ctx.fillStyle = "#000";
+  ctx.lineWidth = 1;
+  ctx.lineJoin = 'round';
+  ctx.setLineDash([]);
 };
 
 PentaTreeStyler.prototype.getCascadingProperties = function (tree, propertyPathArray, propertyKeys) {
@@ -86,18 +86,18 @@ PentaTreeStyler.prototype.assignProperties = function (source, target, propertyK
 
 PentaTreeStyler.prototype.assignStyleProperties = function (styleProps, penta) {
   if (!styleProps) return;
-  
+
   Object.keys(styleProps).forEach(key => {
     if (key === 'fillStyle' && typeof styleProps[key] === 'function') {
       styleProps[key] = styleProps[key](penta);
     }
-    this.ctx[key] = styleProps[key];
+    goldenContext.ctx[key] = styleProps[key];
   });
 }
 
 /**
  * Traverses the specified style tree along the specified property path and
- * assigns all style properties to this.ctx in each step.
+ * assigns all style properties to goldenContext.ctx in each step.
  */
 PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, penta) {
   if (!propertyPath) return;
@@ -112,7 +112,7 @@ PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, p
 }
 
 PentaTreeStyler.prototype.logStyles = function () {
-  this.styleProperties.forEach(prop => console.log(prop, "=", this.ctx[prop]));
+  this.styleProperties.forEach(prop => console.log(prop, "=", goldenContext.ctx[prop]));
 };
 
 

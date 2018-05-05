@@ -1,8 +1,8 @@
-function PentaStyles(ctx) {
-  this.ctx = ctx;
+function PentaStyles() {
+  let ctx = goldenContext.ctx;
 
-  this.ctx.lineWidth = 1.75;
-  this.ctx.lineJoin = "round";
+  ctx.lineWidth = 1.75;
+  ctx.lineJoin = "round";
 
   this.colors = {
     black: this.color(0, 0, 0),
@@ -123,6 +123,33 @@ function PentaStyles(ctx) {
     cyan: this.makeAGlowOf(this.colors.cyan),
   };
 
+  this.colors.alpha = [];
+  this.strokes.alpha = [];
+  this.fills.alpha = [];
+
+  for (let alpha = 1; alpha < 10; alpha++) {
+    console.log(alpha);
+    this.colors.alpha[alpha] = {};
+    this.strokes.alpha[alpha] = {};
+    this.fills.alpha[alpha] = {};
+
+    Object.keys(this.colors).forEach(key => {
+      if (typeof this.colors[key] === 'string') {
+        console.log(key);
+        this.colors.alpha[alpha][key] = this.alpha(this.colors[key], alpha / 10);
+        this.strokes.alpha[alpha][key] = { strokeStyle: this.alpha(this.colors[key], alpha / 10) };
+        this.fills.alpha[alpha][key] = { fillStyle: this.alpha(this.colors[key], alpha / 10) };
+      }
+    });
+  }
+
+  this.strokes.mix = function (color1, color2, weight1, weight2) {
+    return { strokeStyle: goldenContext.pentaStyles.mixColors(color1, color2, weight1, weight2) };
+  }
+
+  this.fills.mix = function (color1, color2, weight1, weight2) {
+    return { fillStyle: goldenContext.pentaStyles.mixColors(color1, color2, weight1, weight2) };
+  }
 
   this.dashes = {
     none: [],
@@ -132,12 +159,10 @@ function PentaStyles(ctx) {
   };
 };
 
-let PS = PentaStyles;
-
 //
 // colors
 
-PS.prototype.color = function (r, g, b, a) {
+PentaStyles.prototype.color = function (r, g, b, a) {
   r = Math.min(255, Math.max(0, Math.round(r)));
   g = Math.min(255, Math.max(0, Math.round(g)));
   b = Math.min(255, Math.max(0, Math.round(b)));
@@ -145,20 +170,35 @@ PS.prototype.color = function (r, g, b, a) {
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 };
 
-PS.prototype.colorFromString = function (colorStr) {
+PentaStyles.prototype.colorFromString = function (colorStr) {
   colorStr = colorStr.trim();
   let values = colorStr.substring(5, colorStr.length - 1);
-  return values.split(',').map(str => parseInt(str));
+  return values.split(',').map(str => parseFloat(str));
 };
 
-PS.prototype.radialGradient = function (penta, innerColor, outerColor, rangeFrom, rangeTo) {
-  let gradient = this.ctx.createRadialGradient(penta.x, penta.y, rangeFrom * penta.radius, penta.x, penta.y, rangeTo * penta.radius);
+PentaStyles.prototype.mixColors = function (color1, color2, weight1, weight2) {
+  let col1 = this.colorFromString(color1);
+  let col2 = this.colorFromString(color2);
+  let w1 = weight1 || 1.0;
+  let w2 = weight2 || 1.0;
+  let wf1 = w1 / (w1 + w2);
+  let wf2 = w2 / (w1 + w2);
+  return this.color(
+    col1[0] * wf1 + col2[0] * wf2,
+    col1[1] * wf1 + col2[1] * wf2,
+    col1[2] * wf1 + col2[2] * wf2,
+    col1[3] * wf1 + col2[3] * wf2
+  )
+};
+
+PentaStyles.prototype.radialGradient = function (penta, innerColor, outerColor, rangeFrom, rangeTo) {
+  let gradient = goldenContext.ctx.createRadialGradient(penta.x, penta.y, rangeFrom * penta.radius, penta.x, penta.y, rangeTo * penta.radius);
   gradient.addColorStop(0, innerColor);
   gradient.addColorStop(1, outerColor);
   return gradient;
 };
 
-PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor, rangeFrom, rangeTo) {
+PentaStyles.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor, rangeFrom, rangeTo) {
   let that = this;
   return {
     fillStyle: function (penta) {
@@ -167,22 +207,22 @@ PS.prototype.getRadialGradientFillStyleMaker = function (innerColor, outerColor,
   }
 };
 
-PS.prototype.makeAShineOf = function (color) {
+PentaStyles.prototype.makeAShineOf = function (color) {
   let transparentColor = this.alpha(color, 0);
   color = this.alpha(color, this.lightAlpha);
   return this.getRadialGradientFillStyleMaker(transparentColor, color, PM.gold_, 1);
 };
 
-PS.prototype.makeAGlowOf = function (color) {
+PentaStyles.prototype.makeAGlowOf = function (color) {
   let transparentColor = this.alpha(color, 0);
   color = this.alpha(color, 1 - this.lightAlpha);
   return this.getRadialGradientFillStyleMaker(color, transparentColor, 0, PM.out2in);
 };
 
-PS.prototype.brightIncrement = 100;
-PS.prototype.darkDecrement = -100;
+PentaStyles.prototype.brightIncrement = 100;
+PentaStyles.prototype.darkDecrement = -100;
 
-PS.prototype.bright = function (colorStr, brightIncrement) {
+PentaStyles.prototype.bright = function (colorStr, brightIncrement) {
   brightIncrement = brightIncrement || this.brightIncrement;
   let rgba = this.colorFromString(colorStr);
   return this.color(
@@ -193,42 +233,42 @@ PS.prototype.bright = function (colorStr, brightIncrement) {
   );
 };
 
-PS.prototype.dark = function (colorStr, darkDecrement) {
+PentaStyles.prototype.dark = function (colorStr, darkDecrement) {
   return this.bright(colorStr, darkDecrement || this.darkDecrement)
 };
 
-PS.prototype.alpha = function (colorStr, alpha) {
+PentaStyles.prototype.alpha = function (colorStr, alpha) {
   let rgba = this.colorFromString(colorStr);
   return this.color(rgba[0], rgba[1], rgba[2], alpha);
 };
 
-PS.prototype.lightAlpha = 0.25;
+PentaStyles.prototype.lightAlpha = 0.25;
 
-PS.prototype.light = function (colorStr, lightAlpha) {
+PentaStyles.prototype.light = function (colorStr, lightAlpha) {
   return this.alpha(colorStr, lightAlpha || this.lightAlpha);
 };
 
 //
 // style properties
 
-PS.prototype.stroke = function (color) {
+PentaStyles.prototype.stroke = function (color) {
   return {
     strokeStyle: color
   };
 };
 
-PS.prototype.fill = function (color) {
+PentaStyles.prototype.fill = function (color) {
   return {
     fillStyle: color
   };
 };
 
-PS.prototype.lineWidth = function (width) {
+PentaStyles.prototype.lineWidth = function (width) {
   return {
     lineWidth: width
   };
 }
 
-PS.prototype.all = function (...styles) {
+PentaStyles.prototype.all = function (...styles) {
   return Object.assign.apply(Object.assign, [{}].concat(styles));
 };

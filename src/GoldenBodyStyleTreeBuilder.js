@@ -4,7 +4,7 @@
  */
 function createStyleTree(goldenBody) {
 
-  let PS = goldenContext.pentaStyle;
+  let PS = goldenContext.pentaStyles;
 
   let mainStyles = {
 
@@ -17,25 +17,30 @@ function createStyleTree(goldenBody) {
 
     lineWidth: 4 * 1.5,
     fillStyle: PS.colors.transparent.black,
-    middle: PS.strokes.dark.magenta,
-    outer: PS.all(PS.strokes.cyan, PS.fills.light.cyan),
-    inner: PS.all(PS.strokes.red, PS.fills.light.red)
+    outer: PS.all(PS.strokes.dark.cyan, PS.fills.light.cyan),
+    inner: PS.all(PS.strokes.dark.red, PS.fills.light.red),
+    middle: PS.all(PS.strokes.dark.magenta, PS.fills.aGlowOf.magenta)
   }
-  mainStyles.middle.upper = PS.fills.aGlowOf.magenta;
-  mainStyles.middle.lower = PS.fills.aGlowOf.magenta;
-
-  let coreStyles = copy(mainStyles);
-
-  coreStyles.lineWidth = 4 * 1;
 
   goldenBody.styleTree = copy(mainStyles);
-  goldenBody.styleTree.cores = copy(coreStyles);
-  //goldenBody.styleTree.cores.middle = copy(coreStyles,PS.fills.magenta)
+
+  //
+  // Cores
+
+  goldenBody.styleTree.cores = copy(mainStyles, { lineWidth: 4 * 1 });
+
+  goldenBody.styleTree.cores.inner.fillPentagram = PS.fills.alpha[3].red;
+  goldenBody.styleTree.cores.outer.fillPentagram = PS.fills.alpha[3].cyan;
+  goldenBody.styleTree.cores.middle.fillPentagram = PS.fills.alpha[5].magenta;
+
+  //
+  // Supers
 
   goldenBody.styleTree.supers = {
     drawCircle: false,
     drawPentagon: false,
-    drawPentagram: false,
+    drawPentagram: PS.strokes.bright.cyan,
+
     inner: {
       upper: PS.all(PS.strokes.red, PS.fills.aShineOf.red),
       lower: PS.all(PS.strokes.red, PS.fills.aShineOf.red)
@@ -50,42 +55,47 @@ function createStyleTree(goldenBody) {
     }
   };
 
+  //
+  // Golden Spots
+
   goldenBody.styleTree.spots = {
     radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_,
 
     inner: {
       fillCircle: PS.fills.aGlowOf.red,
-      fillStar: PS.fills.yellow,
-      drawStar: PS.strokes.dark.red,
-
-      lower: {
-        radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_
-      }
+      fillStar: PS.fills.red,
+      drawStar: PS.strokes.dark.red
     },
 
     outer: {
       fillCircle: PS.fills.aGlowOf.cyan,
       drawCircle: false,
       fillStar: PS.fills.yellow,
-      drawStar: PS.strokes.dark.cyan,
-
-      upper: {
-        lineWidth: 12
-      }
+      drawStar: PS.strokes.dark.cyan
     },
 
     middle: {
       fillCircle: PS.fills.aGlowOf.magenta,
-      fillStar: PS.fills.bright.yellow,
+      fillStar: PS.fills.mix(PS.colors.alpha[9].magenta, PS.colors.alpha[7].yellow),
       drawStar: PS.strokes.dark.magenta
-    },
-
-    cores: {
-      fillStar: PS.fills.red,
-      drawStar: PS.strokes.yellow,
-      fillCircle: PS.fills.aShineOf.yellow
     }
-  }
+  };
+
+  goldenBody.styleTree.spots.cores = {
+    radius: goldenBody.styleTree.spots.radius / PM.gold,
+
+    inner: goldenBody.styleTree.spots.inner,
+    outer: goldenBody.styleTree.spots.outer,
+    middle: goldenBody.styleTree.spots.middle
+  };
+
+  goldenBody.styleTree.spots.cores.middle = {
+    drawStar: PS.strokes.mix(PS.colors.alpha[3].magenta, PS.colors.white, 1, 3),
+    fillStar: PS.fills.mix(PS.colors.alpha[6].magenta, PS.colors.alpha[6].white, 1, 2)
+  };
+
+  // 
+  // Extremitites
 
   goldenBody.styleTree.extremities = {
     upper: {
