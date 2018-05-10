@@ -1,6 +1,7 @@
 let goldenContext = {
-  size: 4 * 120,
-  origin: [4 * 447, 4 * 470],
+  scale: 4,
+  size: 480,
+  origin: [1788, 1880],
 };
 
 goldenContext.canvas = document.getElementById('golden-body-canvas');
@@ -13,6 +14,8 @@ goldenContext.setup = function () {
   this.painter.paintGoldenBody(this.goldenBody);
 }
 goldenContext.setup();
+
+setupPentaDragNDrop();
 
 /** 
 goldenContext.canvas.addEventListener("mouseenter", (event) => {
@@ -27,6 +30,8 @@ goldenContext.canvas.addEventListener("scroll", (event) => {
   console.log("scroll event on canvas element ", goldenContext.canvas.scrollTop);
 });
 */
+
+/*
 let lastScrollY = 0;
 
 document.addEventListener("scroll", (event) => {
@@ -48,6 +53,7 @@ document.addEventListener("scroll", (event) => {
   event.preventDefault();
   event.stopPropagation();
 });
+*/
 
 let canvasImage = document.getElementById('canvas-image');
 canvasImage.addEventListener("click", (event) => {

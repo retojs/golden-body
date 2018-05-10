@@ -11,15 +11,15 @@ function createStyleTree(goldenBody) {
     drawCircle: true,
     fillCircle: true,
     drawPentagram: true,
-    fillPentagram: true,
+    fillPentagram: false,
     drawPentagon: true,
     fillPentagon: true,
 
-    lineWidth: 4 * 1.5,
+    lineWidth: 6,
     fillStyle: PS.colors.transparent.black,
-    outer: PS.all(PS.strokes.dark.cyan, PS.fills.light.cyan),
-    inner: PS.all(PS.strokes.dark.red, PS.fills.light.red),
-    middle: PS.all(PS.strokes.dark.magenta, PS.fills.aGlowOf.magenta)
+    outer: PS.all(PS.strokes.dark.cyan, PS.fills.alpha[4].cyan),
+    inner: PS.all(PS.strokes.dark.red, PS.fills.alpha[2].red),
+    middle: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta)
   }
 
   goldenBody.styleTree = copy(mainStyles);
@@ -63,20 +63,20 @@ function createStyleTree(goldenBody) {
 
     inner: {
       fillCircle: PS.fills.aGlowOf.red,
-      fillStar: PS.fills.red,
-      drawStar: PS.strokes.dark.red
+      fillStar: PS.fills.alpha[7].red,
+      drawStar: PS.strokes.alpha[7].yellow
     },
 
     outer: {
       fillCircle: PS.fills.aGlowOf.cyan,
       drawCircle: false,
-      fillStar: PS.fills.yellow,
-      drawStar: PS.strokes.dark.cyan
+      fillStar: PS.fills.alpha[7].yellow,
+      drawStar: PS.strokes.alpha[7].red
     },
 
     middle: {
-      fillCircle: PS.fills.aGlowOf.magenta,
-      fillStar: PS.fills.mix(PS.colors.alpha[9].magenta, PS.colors.alpha[7].yellow),
+      fillCircle: PS.fills.light.magenta,
+      fillStar: PS.makeAShineOf(PS.mixColors(PS.colors.alpha[8].magenta, PS.colors.alpha[7].yellow)),
       drawStar: PS.strokes.dark.magenta
     }
   };

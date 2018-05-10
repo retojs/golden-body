@@ -32,8 +32,28 @@ PentaPainterOps.prototype.drawCircle = function (penta, style, doFill) {
   let ctx = goldenContext.ctx;
   this.styler.assignStyleProperties(style || penta.style, penta);
 
-  ctx.beginPath(penta.x, penta.y);
-  ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
+  // ctx.beginPath(penta.x, penta.y);
+  // ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
+
+  let outerPenta = penta.createOuter();
+  let outerEdge = outerPenta.p4;
+  let lastEdge = penta.p4;
+  let edge = lastEdge;
+  ctx.moveTo.apply(ctx, penta.p4);
+  for (let i = 0; i < 5; i++) {
+    edge = penta['p' + i];
+    let c1 = PM.middle(lastEdge, outerEdge, PM.gold_),
+      c2 = PM.middle(edge, outerEdge, PM.gold_);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], edge[0], edge[1]);
+    outerEdge = outerPenta['p' + i];
+    lastEdge = edge;
+  }
+
+  // for a bezier curve proportional to distance between points
+  // sidelength?
+  // radius
+  // control points
+
   doFill ? ctx.fill() : ctx.stroke();
 };
 
@@ -124,7 +144,7 @@ PentaPainterOps.prototype.paintBgrImage = function (url) {
   return new Promise((resolve, reject) => {
     bgrImage.onload = () => {
       if (!goldenContext.hideBgrImage) {
-        ctx.drawImage(bgrImage, 0, 4 * -120, goldenContext.canvas.width, goldenContext.canvas.width * goldenContext.bgrImageProportion);
+        ctx.drawImage(bgrImage, 0, -480, goldenContext.canvas.width, goldenContext.canvas.width * goldenContext.bgrImageProportion);
       }
       resolve();
     }

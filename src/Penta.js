@@ -138,8 +138,22 @@ Penta.prototype.createOuter = function (style) {
     style);
 };
 
+Penta.prototype.getEdgesAtPos = function (pos, radius) {
+  let edges = []
+  radius = radius || goldenContext.scale * 5;
+
+  for (let i = 0; i < 5; i++) {
+    let edge = this['p' + i], x = edge[0], y = edge[1];
+    if ((pos.x - radius) < x && x < (pos.x + radius)
+      && (pos.y - radius) < y && y < (pos.y + radius)) {
+      edges.push(edge);
+    }
+  }
+  return edges;
+};
+
 Penta.prototype.createPentagonExtension = function (style) {
-// TODO
+  // TODO
 };
 
 Penta.prototype.createPentagramExtension = function (style) {
@@ -153,3 +167,4 @@ Penta.prototype.createPentagramExtension = function (style) {
     this.angle,
     style);
 };
+

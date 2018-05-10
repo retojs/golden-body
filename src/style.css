@@ -1,18 +1,23 @@
-#golden-body-canvas, #golden-body-penta-tree, #golden-body-style-tree {
+#canvas-container {
   display: block;
   margin: auto;
   width: 800px;
+  position: relative;
 }
 
 #golden-body-canvas {
+  width: 800px;
+  margin-top: 32px;
   margin-bottom: 20px;
-  margin-top: 20px;
   overflow: scroll;
 }
 
 #canvas-image {
   width: 32px;
   height: 32px;
+  position: absolute;
+  top:0px;
+  left:-32px;
 }
 
 #golden-body-penta-tree, #golden-body-style-tree {
