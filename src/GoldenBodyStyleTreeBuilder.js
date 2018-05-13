@@ -8,12 +8,12 @@ function createStyleTree(goldenBody) {
 
   let mainStyles = {
 
-    drawCircle: true,
     fillCircle: true,
-    drawPentagram: true,
+    drawCircle: true,
     fillPentagram: false,
-    drawPentagon: true,
+    drawPentagram: true,
     fillPentagon: true,
+    drawPentagon: true,
 
     lineWidth: 6,
     fillStyle: PS.colors.transparent.black,
@@ -128,6 +128,4 @@ function createStyleTree(goldenBody) {
   }
 
   document.getElementById('golden-body-style-tree').innerHTML = toString(goldenBody);
-  console.log('styleTree');
-  console.log(goldenBody.styleTree);
 }

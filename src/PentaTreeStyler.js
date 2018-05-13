@@ -96,18 +96,17 @@ PentaTreeStyler.prototype.assignStyleProperties = function (styleProps, penta) {
 }
 
 /**
- * Traverses the specified style tree along the specified property path and
- * assigns all style properties to goldenContext.ctx in each step.
+ * Collects the cascading style properties along the propertyPath in the specified style tree.
  */
-PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPath, penta) {
-  if (!propertyPath) return;
+PentaTreeStyler.prototype.applyTreeStyles = function (styleTree, propertyPathArray, penta) {
+  if (!propertyPathArray) return;
 
   this.clearStyles();
 
-  let styleProps = this.getCascadingProperties(styleTree, propertyPath, this.styleProperties);
+  let styleProps = this.getCascadingProperties(styleTree, propertyPathArray, this.styleProperties);
   this.assignStyleProperties(styleProps, penta);
 
-  // console.log("--- styles after applying propertyPath " + (propertyPath.join(".")));
+  // console.log("--- styles after applying propertyPathArray " + (propertyPathArray.join(".")));
   // this.logStyles();
 }
 

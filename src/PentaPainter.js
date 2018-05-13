@@ -1,14 +1,17 @@
 function PentaPainter() {
-  this.bgrImageUrl = 'assets/physiological-model--golden-proportion-format.png';  // image format has golden proportions
-  this.bgrImageWidth = 900;
-  this.bgrImageHeight = 1456;
-  goldenContext.bgrImageProportion = this.bgrImageHeight / this.bgrImageWidth;
 
   // close-up
   //this.bgrImageUrl = 'assets/golden-spots--physiological-model--square-1004px.png';
 
   // far-off
   //this.bgrImageUrl = 'assets/golden-spots--physiological-model--square-1004px.png';
+
+  this.bgrImageUrl = 'assets/physiological-model--golden-proportion-format.png';  // image format has golden proportions
+  this.bgrImageWidth = 900;
+  this.bgrImageHeight = 1456;
+  goldenContext.bgrImageProportion = this.bgrImageHeight / this.bgrImageWidth;
+
+  this.ops = new PentaPainterOps();
 }
 
 /**
@@ -20,9 +23,10 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
 
   createStyleTree(goldenBody);
 
-  // ctx.scale(goldenContext.zoom || 1, goldenContext.zoom || 1);
-  // ctx.translate(goldenContext.canvas.width, 2.0);
-
+  ctx.restore();
+  ctx.resetTransform();
+  ctx.scale(goldenContext.zoom || 1, goldenContext.zoom || 1);
+  ctx.translate(goldenContext.translate.x, goldenContext.translate.y);
   ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
 
   /**
@@ -30,42 +34,49 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
    * to be loaded and painted on the canvas,
    * before we're painting the penta-model on top of it.
    */
-  return new PentaPainterOps().paintBgrImage(this.bgrImageUrl)
+  return this.ops.paintBgrImage(this.bgrImageUrl)
     .then(() => {
-      this.paintSubtreePentas(goldenBody, 'supers.outer');
-      this.paintSubtreePentas(goldenBody, 'supers.middle');
-
-
-      this.paintSubtreePentas(goldenBody, 'outer');
-      this.paintSubtreePentas(goldenBody, 'inner');
-      this.paintSubtreePentas(goldenBody, 'cores.outer');
-      this.paintSubtreePentas(goldenBody, 'cores.inner');
-      this.paintSubtreePentas(goldenBody, 'middle');
-      this.paintSubtreePentas(goldenBody, 'cores.middle');
-
-      // this.paintSubtreePentas(goldenBody, 'extremities');
-      // this.paintSubtreePentas(goldenBody, 'outerExtremities');   
-      //      this.paintSubtreePentas(goldenBody, 'cores');
-
-      this.paintSubtreeSpots(goldenBody, 'cores');
-
-      this.paintSubtreeSpots(goldenBody, 'middle');
-      this.paintSubtreeSpots(goldenBody, 'outer');
-      this.paintSubtreeSpots(goldenBody, 'inner');
-
-      // this.paintSubtreeSpots(goldenBody, 'cores');
-
+      let paintOrderLines = document.getElementById('golden-body-paint-order').value.split('\n');
+      paintOrderLines.forEach(line => {
+        line = line.trim();
+        if (line) {
+          if (line.indexOf('spots') === 0) {
+            this.paintSubtreeSpots(goldenBody, line.substr('spots.'.length));
+          } else {
+            this.paintSubtreePentas(goldenBody, line);
+          }
+        }
+      });
+      //console.log("painter: goldenContext.hitSpots=", goldenContext.hitSpots);
+      this.paintHitSpots(goldenContext.hitSpots, {
+        fillStyle: "rgba(255, 0, 255, 0.2)"
+      });
+      //console.log("painter: goldenContext.hoverSpots=", goldenContext.hoverSpots);
+      this.paintHitSpots(goldenContext.hoverSpots, {
+        fillStyle: "rgba(255, 0, 255, 0.1)"
+      });
     });
 };
 
-PentaPainter.prototype.asArray = function (propertyPath) {
+PentaPainter.prototype.paintHitSpots = function (hitSpots, style) {
+  hitSpots.forEach(spot => this.ops.fillSimpleCircle(
+    {
+      x: spot.pos[0],
+      y: spot.pos[1],
+      radius: 36
+    },
+    style
+  ));
+}
+
+PentaPainter.prototype.pathString2Array = function (propertyPath) {
   if (!propertyPath) return [];
   if (Array.isArray(propertyPath)) return propertyPath;
   if (typeof propertyPath === 'string') {
     let pathArray = propertyPath.split('.');
     return Array.isArray(pathArray) ? pathArray : [pathArray];
   } else {
-    throw "PentaPainter.prototype.asArray(propertyPath): Cannot handle propertyPath of type " + (typeof propertyPath);
+    throw "PentaPainter.prototype.pathString2Array(propertyPath): Cannot handle propertyPath of type " + (typeof propertyPath);
   }
 };
 
@@ -73,7 +84,7 @@ PentaPainter.prototype.asArray = function (propertyPath) {
 // paint Pentas
 
 PentaPainter.prototype.paintSubtreePentas = function (goldenBody, propertyPath) {
-  let propertyPathArray = this.asArray(propertyPath);
+  let propertyPathArray = this.pathString2Array(propertyPath);
   this.paintSubtreePentasRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
@@ -93,16 +104,15 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, sub
 };
 
 PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArray) {
-  let ops = new PentaPainterOps();
-  let stylesPerOp = ops.getStylesPerOp(styleTree, propertyPathArray);
-  ops.styler.applyTreeStyles(styleTree, propertyPathArray, penta);
-  ops.opsList.forEach(op => {
+  let stylesPerOp = this.ops.getStylesPerOp(styleTree, propertyPathArray);
+  this.ops.styler.applyTreeStyles(styleTree, propertyPathArray, penta);
+  this.ops.opsList.forEach(op => {
     if (typeof stylesPerOp[op] === 'boolean') {
       if (stylesPerOp[op]) {
-        ops[op](penta);
+        this.ops[op](penta);
       }
     } else if (stylesPerOp[op]) {
-      ops[op](penta, stylesPerOp[op]);
+      this.ops[op](penta, stylesPerOp[op]);
     }
   });
 };
@@ -111,7 +121,7 @@ PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArra
 // paint Golden Spots
 
 PentaPainter.prototype.paintSubtreeSpots = function (goldenBody, propertyPath) {
-  let propertyPathArray = this.asArray(propertyPath);
+  let propertyPathArray = this.pathString2Array(propertyPath);
   this.paintSubtreeSpotsRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
@@ -139,18 +149,17 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subt
  * and paints these Pentas as stars with the styles defined in penta.goldenSpots.options.
  */
 PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPathArray) {
-  let ops = new PentaPainterOps();
-  let stylesPerOp = ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
-  let radius = ops.styler.getCascadingProperties(goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
+  let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
+  let radius = this.ops.styler.getCascadingProperties(goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
   let spots = penta.createEdges(radius);
   spots.forEach((spot) => {
-    ops.opsList.forEach(op => {
+    this.ops.opsList.forEach(op => {
       if (typeof stylesPerOp[op] === 'boolean') {
         if (stylesPerOp[op]) {
-          ops[op](spot);
+          this.ops[op](spot);
         }
       } else if (stylesPerOp[op]) {
-        ops[op](spot, stylesPerOp[op]);
+        this.ops[op](spot, stylesPerOp[op]);
       }
     });
   });

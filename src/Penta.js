@@ -115,6 +115,10 @@ Penta.prototype.createEdges = function (radius) {
   ];
 };
 
+Penta.prototype.getPs = function (radius) {
+  return [this.p0, this.p1, this.p2, this.p3, this.p4];
+}
+
 Penta.prototype.createCore = function () {
   return this.clone({
     radius: this.radius * PM.gold_ * PM.gold_,
@@ -139,17 +143,22 @@ Penta.prototype.createOuter = function (style) {
 };
 
 Penta.prototype.getEdgesAtPos = function (pos, radius) {
-  let edges = []
+  let edgesAtPos = [];
+  let edges = this.getPs().map(p => { return { pos: p, x: p[0], y: p[1] } });
+
   radius = radius || goldenContext.scale * 5;
 
-  for (let i = 0; i < 5; i++) {
-    let edge = this['p' + i], x = edge[0], y = edge[1];
-    if ((pos.x - radius) < x && x < (pos.x + radius)
-      && (pos.y - radius) < y && y < (pos.y + radius)) {
-      edges.push(edge);
+  return edges.reduce((edgesAtPos, edge) => {
+    if ((pos.x - radius) < edge.x && edge.x < (pos.x + radius)
+      && (pos.y - radius) < edge.y && edge.y < (pos.y + radius)) {
+      edgesAtPos.push(edge);
+      edge.hitPos = {
+        x: pos.x - edge.x,
+        y: pos.y - edge.y
+      };
     }
-  }
-  return edges;
+    return edgesAtPos;
+  }, edgesAtPos);
 };
 
 Penta.prototype.createPentagonExtension = function (style) {

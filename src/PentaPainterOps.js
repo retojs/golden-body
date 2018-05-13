@@ -34,31 +34,54 @@ PentaPainterOps.prototype.drawCircle = function (penta, style, doFill) {
 
   // ctx.beginPath(penta.x, penta.y);
   // ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
+  // ctx.stroke();
 
-  let outerPenta = penta.createOuter();
-  let outerEdge = outerPenta.p4;
   let lastEdge = penta.p4;
   let edge = lastEdge;
+  ctx.beginPath();
   ctx.moveTo.apply(ctx, penta.p4);
   for (let i = 0; i < 5; i++) {
     edge = penta['p' + i];
-    let c1 = PM.middle(lastEdge, outerEdge, PM.gold_),
-      c2 = PM.middle(edge, outerEdge, PM.gold_);
+    let orthogonal = PM.orthogonal(lastEdge, edge, PM.gold_ * PM.gold_ * 0.95);
+    let c1 = PM.middle(lastEdge, orthogonal.p2, PM.gold_ * 0.95),
+      c2 = PM.middle(edge, orthogonal.p2, PM.gold_ * 0.95);
     ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], edge[0], edge[1]);
-    outerEdge = outerPenta['p' + i];
     lastEdge = edge;
   }
 
-  // for a bezier curve proportional to distance between points
-  // sidelength?
-  // radius
-  // control points
-
   doFill ? ctx.fill() : ctx.stroke();
+
+  let DO_PAINT_ORTHOGONALS = false;
+  if (DO_PAINT_ORTHOGONALS) {
+    lastEdge = penta.p4;
+    for (let i = 0; i < 5; i++) {
+      edge = penta['p' + i];
+      let orthogonal = PM.orthogonal(lastEdge, edge, PM.gold_ * PM.gold_ * 0.95);
+      ctx.beginPath();
+      ctx.moveTo.apply(null, orthogonal.p1);
+      ctx.lineTo(orthogonal.p2[0], orthogonal.p2[1]);
+      ctx.stroke();
+      lastEdge = edge;
+    }
+  }
 };
 
 PentaPainterOps.prototype.fillCircle = function (penta, style) {
   this.drawCircle(penta, style, true);
+};
+
+PentaPainterOps.prototype.drawSimpleCircle = function (penta, style, doFill) {
+  let ctx = goldenContext.ctx;
+  this.styler.assignStyleProperties(style || penta.style, penta);
+
+  ctx.beginPath(penta.x, penta.y);
+  ctx.arc(penta.x, penta.y, penta.radius, 0, PM.deg360);
+
+  doFill ? ctx.fill() : ctx.stroke();
+};
+
+PentaPainterOps.prototype.fillSimpleCircle = function (penta, style) {
+  this.drawSimpleCircle(penta, style, true);
 };
 
 PentaPainterOps.prototype.drawPentagon = function (penta, style, doFill) {

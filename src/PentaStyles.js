@@ -128,14 +128,12 @@ function PentaStyles() {
   this.fills.alpha = [];
 
   for (let alpha = 1; alpha < 10; alpha++) {
-    console.log(alpha);
     this.colors.alpha[alpha] = {};
     this.strokes.alpha[alpha] = {};
     this.fills.alpha[alpha] = {};
 
     Object.keys(this.colors).forEach(key => {
       if (typeof this.colors[key] === 'string') {
-        console.log(key);
         this.colors.alpha[alpha][key] = this.alpha(this.colors[key], alpha / 10);
         this.strokes.alpha[alpha][key] = { strokeStyle: this.alpha(this.colors[key], alpha / 10) };
         this.fills.alpha[alpha][key] = { fillStyle: this.alpha(this.colors[key], alpha / 10) };

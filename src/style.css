@@ -20,22 +20,32 @@
   left:-32px;
 }
 
-#golden-body-penta-tree, #golden-body-style-tree {
-  width: 760px;
+#golden-body-paint-order, 
+#golden-body-penta-tree,
+#golden-body-style-tree {
+  float:right;
   margin: auto;
   padding: 20px;
   border: none;
   border-bottom: 1px solid #f0f;
   background-color: #000;
   color: #0ff;
-  font-family: 'Roboto';
+  font-family: 'Roboto Mono';
+  font-size: 11px;
+}
+
+#golden-body-paint-order {
+  color: yellow;
+  width: 760px;
 }
 
 #golden-body-penta-tree {
   color: #0ff;
+  width: 360px;
 }
 
 #golden-body-style-tree {
-  color: #ff0;
+  color: #f0f;
+  width: 360px;
 }
 

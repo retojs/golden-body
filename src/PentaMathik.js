@@ -84,6 +84,18 @@ PM.middle = function (p1, p2, ratio) {
 };
 
 /**
+ * returns the endpoints of a line orthogonal to the line specified by the endpoints p1 and p2 
+ */
+PM.orthogonal = function (p1, p2, ratio) {
+  let p1p2 = [p2[0] - p1[0], p2[1] - p1[1]];
+  let middle = PM.middle(p1, p2);
+  return {
+    p1: [middle[0], middle[1]],
+    p2: [middle[0] - p1p2[1] * ratio, middle[1] + p1p2[0] * ratio]
+  };
+}
+
+/**
  * see: https://en.wikipedia.org/wiki/Rotation_matrix
  */
 PM.rotate = function (pos, center, angle) {

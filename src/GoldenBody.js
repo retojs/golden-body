@@ -18,7 +18,7 @@ function GoldenBody(center, radius, angle, ps) {
 GoldenBody.prototype.getPentaSubtree = function(propertyPathArray) {
   if (!propertyPathArray) return;
   let subtree = this.pentaTree;
-  propertyPathArray.forEach((prop) => subtree = subtree[prop]);
+  propertyPathArray.forEach((prop) => subtree = subtree? subtree[prop] : undefined);
   return subtree;
 }
 

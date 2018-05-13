@@ -8,52 +8,17 @@ goldenContext.canvas = document.getElementById('golden-body-canvas');
 goldenContext.ctx = goldenContext.canvas.getContext('2d');
 goldenContext.pentaStyles = new PentaStyles();
 
+setupPentaDragNDrop();
+setupCanvasZoom();
+setupPaintOrderEditing();
+setupPaintOrderSelection();
+
 goldenContext.setup = function () {
   this.painter = new PentaPainter();
   this.goldenBody = new GoldenBody(this.origin, this.size, PM.deg90);
   this.painter.paintGoldenBody(this.goldenBody);
 }
 goldenContext.setup();
-
-setupPentaDragNDrop();
-
-/** 
-goldenContext.canvas.addEventListener("mouseenter", (event) => {
-  goldenContext.mouseOverCanvas = true;
-});
-
-goldenContext.canvas.addEventListener("mouseleave", (event) => {
-  goldenContext.mouseOverCanvas = false;
-});
-
-goldenContext.canvas.addEventListener("scroll", (event) => {
-  console.log("scroll event on canvas element ", goldenContext.canvas.scrollTop);
-});
-*/
-
-/*
-let lastScrollY = 0;
-
-document.addEventListener("scroll", (event) => {
-  console.log("scrolling ", event);
-  let gc = goldenContext;
-
-  if (gc.mouseOverCanvas) {
-    console.log("now we're talking", window.scrollY, lastScrollY);
-
-    if (window.scrollY >= lastScrollY) {
-      gc.zoom = 1 + window.scrollY / gc.canvas.height;
-      lastScrollY = window.scrollY;
-      console.log("greater ", gc.zoom, lastScrollY, window.scrollY);
-      window.scrollTo(0, 0);
-    }
-  }
-
-
-  event.preventDefault();
-  event.stopPropagation();
-});
-*/
 
 let canvasImage = document.getElementById('canvas-image');
 canvasImage.addEventListener("click", (event) => {

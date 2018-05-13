@@ -218,6 +218,4 @@ function createPentaTree(goldenBody) {
   }
 
   document.getElementById('golden-body-penta-tree').innerHTML = toString(goldenBody);
-  console.log('pentaTree');
-  console.log(goldenBody.pentaTree);
 }
