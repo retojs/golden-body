@@ -28,6 +28,9 @@ PentaPainterOps.prototype.getStylesPerOp = function (styleTree, propertyPathArra
   return this.styler.getCascadingProperties(styleTree, propertyPathArray, this.opsList);
 };
 
+PentaPainterOps.DO_PAINT_SEGMENTS = false;
+PentaPainterOps.DO_PAINT_ORTHOGONALS = false;
+
 PentaPainterOps.prototype.drawCircle = function (penta, style, doFill) {
   let ctx = goldenContext.ctx;
   this.styler.assignStyleProperties(style || penta.style, penta);
@@ -43,22 +46,30 @@ PentaPainterOps.prototype.drawCircle = function (penta, style, doFill) {
   for (let i = 0; i < 5; i++) {
     edge = penta['p' + i];
     let orthogonal = PM.orthogonal(lastEdge, edge, PM.gold_ * PM.gold_ * 0.95);
-    let c1 = PM.middle(lastEdge, orthogonal.p2, PM.gold_ * 0.95),
-      c2 = PM.middle(edge, orthogonal.p2, PM.gold_ * 0.95);
+    let c1 = PM.middle(lastEdge, orthogonal.p2, PM.gold_ * 0.95);
+    let c2 = PM.middle(edge, orthogonal.p2, PM.gold_ * 0.95);
     ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], edge[0], edge[1]);
     lastEdge = edge;
   }
 
   doFill ? ctx.fill() : ctx.stroke();
 
-  let DO_PAINT_ORTHOGONALS = false;
-  if (DO_PAINT_ORTHOGONALS) {
+  if (PentaPainterOps.DO_PAINT_SEGMENTS) {
+    for (let i = 0; i < 5; i++) {
+      edge = penta['p' + i];
+      ctx.moveTo(penta.x, penta.y);
+      ctx.lineTo(edge[0], edge[1]);
+      ctx.stroke();
+    }
+  }
+
+  if (PentaPainterOps.DO_PAINT_ORTHOGONALS) {
     lastEdge = penta.p4;
     for (let i = 0; i < 5; i++) {
       edge = penta['p' + i];
       let orthogonal = PM.orthogonal(lastEdge, edge, PM.gold_ * PM.gold_ * 0.95);
       ctx.beginPath();
-      ctx.moveTo.apply(null, orthogonal.p1);
+      ctx.moveTo(orthogonal.p1[0], orthogonal.p1[1]);
       ctx.lineTo(orthogonal.p2[0], orthogonal.p2[1]);
       ctx.stroke();
       lastEdge = edge;

@@ -134,18 +134,29 @@ function setupPentaDragNDrop() {
         }
 
         let canvasMousePos = mousePos2canvasPos(event.clientX, event.clientY);
-        console.log("event.clientXY=", event.clientX, event.clientY);
-        console.log("canvasMousePos=", canvasMousePos);
         paintPosition(canvasMousePos);
         goldenContext.hitSpots = getSpotsAtPos(canvasMousePos);
+        console.log("hitSpots= ", goldenContext.hitSpots);
+        goldenContext.hitSpots.forEach(spot => spot.penta.saveInitialValues());
     });
+
+    goldenContext.TRIANGLE_MOVE_EDGE = false;
 
     goldenContext.canvas.addEventListener('mousemove', (event) => {
         let canvasMousePos = mousePos2canvasPos(event.clientX, event.clientY);
         if (goldenContext.hitSpots.length > 0) {
+            if (event.shiftKey) {
+                goldenContext.TRIANGLE_MOVE_EDGE = true;
+            }
+            PentaPainterOps.DO_PAINT_SEGMENTS = true;
             goldenContext.hitSpots.forEach(spot => {
                 spot.pos[0] = canvasMousePos.x - spot.hitPos.x;
                 spot.pos[1] = canvasMousePos.y - spot.hitPos.y;
+                if (goldenContext.TRIANGLE_MOVE_EDGE) {
+                    spot.penta.triangleMoveEdge(spot.index, spot.pos);
+                } else {
+                    spot.penta.moveEdge(spot.index, spot.pos);
+                }
             })
             window.requestAnimationFrame(() => goldenContext.painter.paintGoldenBody(goldenContext.goldenBody));
         } else if (HIGHLIGHT_SPOTS_ON_HOVER) {
@@ -158,6 +169,11 @@ function setupPentaDragNDrop() {
     })
 
     goldenContext.canvas.addEventListener('mouseup', (event) => {
+        goldenContext.TRIANGLE_MOVE_EDGE = false;
+        PentaPainterOps.DO_PAINT_SEGMENTS = false;
+        goldenContext.hitSpots.forEach(spot => {
+            spot.penta.movingEdges = [];
+        });
         goldenContext.hitSpots = [];
     })
 
@@ -211,11 +227,12 @@ function setupPentaDragNDrop() {
 
 function setupPaintOrderEditing() {
     let paintOrderTextArea = document.getElementById('golden-body-paint-order');
-    paintOrderTextArea.innerHTML = `middle`;
-    // supers.outer
-    // supers.middle
-    // outer
-    // inner
+    paintOrderTextArea.innerHTML = `inner
+    middle `;
+    // middle 
+    //  inner
+    //  supers.outer
+    //  supers.middle
     // cores.outer
     // cores.inner
     // middle

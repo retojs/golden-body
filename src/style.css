@@ -1,3 +1,15 @@
+body{
+  font-family: 'Roboto Mono';
+  font-size: 11px;
+}
+
+#interaction-legend {
+  position: absolute;
+  top: -4px;
+  left: -8px;
+  width: 100%;
+}
+
 #canvas-container {
   display: block;
   margin: auto;
@@ -7,17 +19,17 @@
 
 #golden-body-canvas {
   width: 800px;
-  margin-top: 32px;
+  margin-top: 64px;
   margin-bottom: 20px;
   overflow: scroll;
 }
 
 #canvas-image {
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
   position: absolute;
   top:0px;
-  left:-32px;
+  left:-64px;
 }
 
 #golden-body-paint-order, 
@@ -30,8 +42,6 @@
   border-bottom: 1px solid #f0f;
   background-color: #000;
   color: #0ff;
-  font-family: 'Roboto Mono';
-  font-size: 11px;
 }
 
 #golden-body-paint-order {

@@ -33,6 +33,10 @@ PM.deg90 = Math.PI / 2;
 PM.deg72 = PM.deg360 / 5;
 PM.deg36 = PM.deg180 / 5;
 
+PM.toDeg = function (rad) {
+  return (rad / Math.PI * 180).toFixed(0);
+}
+
 /**
  * The ratio between the inner and the outer radius of a pentagon
  */
@@ -65,6 +69,18 @@ PM.py = function (r, phi) {
 };
 
 /**
+ * see: https://en.wikipedia.org/wiki/List_of_common_coordinate_transformations#From_Cartesian_coordinates
+ */
+PM.angle = function (vector) {
+  let angle = Math.atan2(vector[1], vector[0]);
+  if (angle < 0) {
+    angle = angle + 2 * Math.PI;
+  }
+  return angle;
+}
+
+
+/**
  * calculates the distance between two points in 2D
  */
 PM.d = function (p1, p2) {
@@ -91,7 +107,7 @@ PM.orthogonal = function (p1, p2, ratio) {
   let middle = PM.middle(p1, p2);
   return {
     p1: [middle[0], middle[1]],
-    p2: [middle[0] - p1p2[1] * ratio, middle[1] + p1p2[0] * ratio]
+    p2: [middle[0] + p1p2[1] * ratio, middle[1] - p1p2[0] * ratio]
   };
 }
 

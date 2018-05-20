@@ -34,3 +34,23 @@ canvasImage.addEventListener("click", (event) => {
     gc.ctx = gc.canvas.getContext('2d');
   });
 });
+
+
+// TEST
+
+let angle = PM.angle([11, 0]);
+console.log("TEST angle=0? ", angle, PM.toDeg(angle));
+angle = PM.angle([11, 11]);
+console.log("TEST angle=45? ", angle, PM.toDeg(angle));
+ angle = PM.angle([0, 11]);
+console.log("TEST angle=90? ", angle, PM.toDeg(angle));
+angle = PM.angle([-11, 11]);
+console.log("TEST angle=135? ", angle, PM.toDeg(angle));
+angle = PM.angle([-11, 0]);
+console.log("TEST angle=180? ", angle, PM.toDeg(angle));
+angle = PM.angle([-11, -11]);
+console.log("TEST angle=225?", angle, PM.toDeg(angle));
+angle = PM.angle([0, -11]);
+console.log("TEST angle=270? ", angle, PM.toDeg(angle));
+angle = PM.angle([11, -11]);
+console.log("TEST angle=315", angle, PM.toDeg(angle));

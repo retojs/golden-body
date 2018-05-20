@@ -115,6 +115,13 @@ PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArra
       this.ops[op](penta, stylesPerOp[op]);
     }
   });
+  if (penta.movingEdges) {
+    penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#00f" } }));
+    if (penta.movingEdges[3]) {
+      let edge = penta.movingEdges[3];
+      this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#0f0" } });
+    }  
+  }
 };
 
 //
