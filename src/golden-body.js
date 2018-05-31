@@ -9,7 +9,7 @@ goldenContext.ctx = goldenContext.canvas.getContext('2d');
 goldenContext.pentaStyles = new PentaStyles();
 
 setupPentaDragNDrop();
-setupCanvasZoom();
+setupCanvasZoomNTranslate();
 setupPaintOrderEditing();
 setupPaintOrderSelection();
 

@@ -115,7 +115,6 @@ PentaTreeStyler.prototype.logStyles = function () {
 };
 
 
-
 /**
  * How to support wildcards in propertyPaths?
  * We need a preprocessor which searches all matching paths in the tree.

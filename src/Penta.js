@@ -126,7 +126,7 @@ Penta.prototype.getPs = function (radius) {
 Penta.prototype.createCore = function () {
   return this.clone({
     radius: this.radius * PM.gold_ * PM.gold_,
-    angle: this.angle + PM.deg36
+    angle: this.angle + PM.deg180
   })
 };
 
@@ -210,7 +210,7 @@ Penta.prototype.triangleMoveEdge = function (index, pos) {
   let pNextNext = this.getEdge(indexNextNext);
   let pPrevPrev = this.getEdge(indexPrevPrev);
 
-  this.movingEdges = [p, pNext, pPrev, [this.x, this.y]];
+  this.movingEdges = [p, pNext, pPrev];
 
   p[0] = pos[0];
   p[1] = pos[1];
@@ -306,11 +306,11 @@ Penta.prototype.getPRadius = function (p) {
   return PM.d(p, [this.x, this.y]);
 };
 
-Penta.prototype.createPentagonExtension = function (style) {
+Penta.prototype.createPentagonExtension = function () {
   // TODO
 };
 
-Penta.prototype.createPentagramExtension = function (style) {
+Penta.prototype.createPentagramExtension = function () {
   let offsetY = this.radius;
   if (this.angle / PM.deg72 > 2) {
     offsetY = -this.radius;
@@ -318,7 +318,31 @@ Penta.prototype.createPentagramExtension = function (style) {
   return new Penta(
     [this.x, this.y + offsetY],
     this.radius * PM.gold_,
-    this.angle,
-    style);
+    this.angle);
 };
 
+Penta.prototype.createCoreDiamond = function (index) {
+  let core = this.createCore();
+  
+  let indexPlus = (index + 2) % 5;
+  let indexMinus = (index - 2 + 5) % 5;
+  let p = penta['p' + index];
+  let pPlus = penta['p' + indexPlus];
+  let pMinus = penta['p' + indexMinus];
+
+
+  // TODO create array of points
+  return [
+    p, pPlus
+  ]
+};
+
+Penta.prototype.createSuperDiamond = function (index) {
+};
+
+Penta.prototype.createV = function (index) {
+  // TODO
+};
+Penta.prototype.createArrow = function (index) {
+  // TODO
+};

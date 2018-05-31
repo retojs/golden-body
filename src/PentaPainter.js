@@ -21,6 +21,9 @@ function PentaPainter() {
 PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
   let ctx = goldenContext.ctx;
 
+  goldenContext.visiblePentas = [];
+  goldenContext.visibleSpots = [];
+
   createStyleTree(goldenBody);
 
   ctx.restore();
@@ -41,9 +44,11 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
         line = line.trim();
         if (line) {
           if (line.indexOf('spots') === 0) {
-            this.paintSubtreeSpots(goldenBody, line.substr('spots.'.length));
+            this.paintSpots(goldenBody, line.substr('spots.'.length));
+          } else if (line.indexOf('diamonds') === 0) {
+            this.paintDiamonds(goldenBody, line);
           } else {
-            this.paintSubtreePentas(goldenBody, line);
+            this.paintPentaTreePath(goldenBody, line);
           }
         }
       });
@@ -83,12 +88,12 @@ PentaPainter.prototype.pathString2Array = function (propertyPath) {
 //
 // paint Pentas
 
-PentaPainter.prototype.paintSubtreePentas = function (goldenBody, propertyPath) {
+PentaPainter.prototype.paintPentaTreePath = function (goldenBody, propertyPath) {
   let propertyPathArray = this.pathString2Array(propertyPath);
-  this.paintSubtreePentasRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+  this.paintPentaSubtreeRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
-PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, subtree, propertyPathArray) {
+PentaPainter.prototype.paintPentaSubtreeRecursively = function (goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
   propertyPathArray = propertyPathArray || [];
 
@@ -97,13 +102,15 @@ PentaPainter.prototype.paintSubtreePentasRecursively = function (goldenBody, sub
   } else {
     Object.keys(subtree).forEach(key => {
       if (subtree[key]) {
-        this.paintSubtreePentasRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
+        this.paintPentaSubtreeRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
       }
     });
   }
 };
 
 PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArray) {
+  goldenContext.visiblePentas.push(penta);
+
   let stylesPerOp = this.ops.getStylesPerOp(styleTree, propertyPathArray);
   this.ops.styler.applyTreeStyles(styleTree, propertyPathArray, penta);
   this.ops.opsList.forEach(op => {
@@ -115,28 +122,25 @@ PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArra
       this.ops[op](penta, stylesPerOp[op]);
     }
   });
-  if (penta.movingEdges) {
+  if (penta.movingEdges && penta.movingEdges.length > 0) {
     penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#00f" } }));
-    if (penta.movingEdges[3]) {
-      let edge = penta.movingEdges[3];
-      this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#0f0" } });
-    }  
+    this.ops.fillSimpleCircle({ x: penta.x, y: penta.y, radius: 20, style: { fillStyle: "#0f0" } });
   }
 };
 
 //
 // paint Golden Spots
 
-PentaPainter.prototype.paintSubtreeSpots = function (goldenBody, propertyPath) {
+PentaPainter.prototype.paintSpots = function (goldenBody, propertyPath) {
   let propertyPathArray = this.pathString2Array(propertyPath);
-  this.paintSubtreeSpotsRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+  this.paintSpotsRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
 /**
  * Paints the Golden Spots of each Penta in the Penta Tree by calling this.paintPentaSpots(penta)
  * after having applied all the corresponding styles from the Golden Body's styles tree.
  */
-PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subtree, propertyPathArray) {
+PentaPainter.prototype.paintSpotsRecursively = function (goldenBody, subtree, propertyPathArray) {
   subtree = subtree || goldenBody.pentaTree;
   propertyPathArray = propertyPathArray || [];
 
@@ -145,7 +149,7 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subt
   } else {
     Object.keys(subtree).forEach(key => {
       if (subtree[key]) {
-        this.paintSubtreeSpotsRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
+        this.paintSpotsRecursively(goldenBody, subtree[key], propertyPathArray.concat([key]));
       }
     });
   }
@@ -156,9 +160,12 @@ PentaPainter.prototype.paintSubtreeSpotsRecursively = function (goldenBody, subt
  * and paints these Pentas as stars with the styles defined in penta.goldenSpots.options.
  */
 PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPathArray) {
+  goldenContext.visibleSpots.push(penta);
+
   let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
   let radius = this.ops.styler.getCascadingProperties(goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
   let spots = penta.createEdges(radius);
+
   spots.forEach((spot) => {
     this.ops.opsList.forEach(op => {
       if (typeof stylesPerOp[op] === 'boolean') {
@@ -172,3 +179,14 @@ PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPa
   });
 }
 
+PentaPainter.prototype.paintDiamonds = function (goldenBody, propertyPath) {
+  let propertyPathArray = this.pathString2Array(propertyPath);
+  let style = { fillStyle: "rgba(255, 0, 100, 0.5)", strokeStyle: "#c00" };
+  let doFill = true;
+  if (propertyPathArray[1] === 'large') {
+    this.ops.drawLargeInnerDiamond(goldenBody.pentaTree, style);
+  }
+  if (propertyPathArray[1] === 'small') {
+    this.ops.drawSmallInnerDiamond(goldenBody.pentaTree, style);
+  }
+}

@@ -17,9 +17,13 @@ function createStyleTree(goldenBody) {
 
     lineWidth: 6,
     fillStyle: PS.colors.transparent.black,
-    outer: PS.all(PS.strokes.dark.cyan, PS.fills.alpha[4].cyan),
-    inner: PS.all(PS.strokes.dark.red, PS.fills.alpha[2].red),
-    middle: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta)
+    outer: PS.all(PS.strokes.dark.cyan, PS.fills.alpha[3].cyan),
+    inner: PS.all(PS.strokes.dark.red, PS.fills.mix(PS.colors.alpha[3].red, PS.colors.alpha[3].yellow, 3, 1)),
+    middle: {
+      ...PS.fills.aShineOf.magenta,
+      upper: PS.strokes.mix(PS.colors.dark.magenta, PS.colors.magenta, 2, 1),
+      lower: PS.strokes.dark.magenta
+    }
   }
 
   goldenBody.styleTree = copy(mainStyles);
@@ -27,11 +31,16 @@ function createStyleTree(goldenBody) {
   //
   // Cores
 
-  goldenBody.styleTree.cores = copy(mainStyles, { lineWidth: 4 * 1 });
+  goldenBody.styleTree.cores = copy(mainStyles);
+  goldenBody.styleTree.cores.lineWidth = 4 * 1;
 
-  goldenBody.styleTree.cores.inner.fillPentagram = PS.fills.alpha[3].red;
-  goldenBody.styleTree.cores.outer.fillPentagram = PS.fills.alpha[3].cyan;
-  goldenBody.styleTree.cores.middle.fillPentagram = PS.fills.alpha[5].magenta;
+  goldenBody.styleTree.cores.inner.fillPentagram = PS.fills.alpha[5].red;
+  goldenBody.styleTree.cores.outer.fillCircle = PS.fills.alpha[5].cyan;
+  goldenBody.styleTree.cores.middle = PS.all(
+    PS.strokes.mix(PS.colors.dark.cyan, PS.colors.magenta),
+    PS.fills.alpha[3].cyan
+  );
+  goldenBody.styleTree.cores.middle.drawCircle = PS.strokes.dark.cyan;
 
   //
   // Supers
@@ -39,19 +48,27 @@ function createStyleTree(goldenBody) {
   goldenBody.styleTree.supers = {
     drawCircle: false,
     drawPentagon: false,
-    drawPentagram: PS.strokes.bright.cyan,
 
     inner: {
-      upper: PS.all(PS.strokes.red, PS.fills.aShineOf.red),
-      lower: PS.all(PS.strokes.red, PS.fills.aShineOf.red)
+      drawPentagram: PS.strokes.alpha[3].orange,
+      upper: PS.fills.aShineOf.red,
+      lower: PS.fills.aShineOf.red
     },
-    outer: {
-      upper: PS.all(PS.strokes.bright.cyan, PS.fills.aShineOf.cyan),
-      lower: PS.all(PS.strokes.bright.cyan, PS.fills.aShineOf.cyan),
+    outer: {      
+      drawPentagram: PS.strokes.bright.cyan,
+      upper: PS.fills.aShineOf.cyan,
+      lower: PS.fills.aShineOf.cyan,
     },
     middle: {
-      upper: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta),
-      lower: PS.all(PS.strokes.dark.magenta, PS.fills.aShineOf.magenta)
+      upper: {
+        ...PS.fills.aShineOf.magenta,
+        ...PS.strokes.alpha[3].magenta
+      },
+      lower: {
+        ...PS.fills.aShineOf.magenta,
+        ...PS.strokes.mix(PS.colors.alpha[3].magenta, PS.colors.alpha[3].blue, 2,1)
+      },
+      drawCircle: PS.strokes.bright.magenta
     }
   };
 
@@ -62,21 +79,22 @@ function createStyleTree(goldenBody) {
     radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_,
 
     inner: {
-      fillCircle: PS.fills.aGlowOf.red,
-      fillStar: PS.fills.alpha[7].red,
-      drawStar: PS.strokes.alpha[7].yellow
+      fillCircle: PS.fills.alpha[5].yellow,
+      drawCircle: PS.strokes.alpha[7].red,
+      fillStar: { fillStyle: PS.mixColors(PS.colors.red, PS.colors.yellow, 4, 1) },
+      drawStar: PS.strokes.yellow
     },
 
     outer: {
       fillCircle: PS.fills.aGlowOf.cyan,
       drawCircle: false,
-      fillStar: PS.fills.alpha[7].yellow,
-      drawStar: PS.strokes.alpha[7].red
+      fillStar: PS.fills.alpha[9].yellow,
+      drawStar: PS.strokes.dark.cyan
     },
 
     middle: {
       fillCircle: PS.fills.light.magenta,
-      fillStar: PS.makeAShineOf(PS.mixColors(PS.colors.alpha[8].magenta, PS.colors.alpha[7].yellow)),
+      fillStar: PS.fills.yellow,
       drawStar: PS.strokes.dark.magenta
     }
   };
@@ -90,8 +108,8 @@ function createStyleTree(goldenBody) {
   };
 
   goldenBody.styleTree.spots.cores.middle = {
-    drawStar: PS.strokes.mix(PS.colors.alpha[3].magenta, PS.colors.white, 1, 3),
-    fillStar: PS.fills.mix(PS.colors.alpha[6].magenta, PS.colors.alpha[6].white, 1, 2)
+    drawStar: PS.strokes.alpha[5].magenta,
+    fillStar: PS.fills.alpha[7].white
   };
 
   // 
@@ -118,8 +136,15 @@ function createStyleTree(goldenBody) {
     right: copy(outerExtremitiesStyles)
   };
 
-  function copy(object, config) {
-    return Object.assign({}, object, config);
+  function copy(object) {
+    if (typeof object === "object") {
+      return Object.keys(object).reduce((clone, key) => {
+        clone[key] = copy(object[key])
+        return clone;
+      },
+        {});
+    }
+    else { return object }
   }
 
   function toString(goldenBody) {

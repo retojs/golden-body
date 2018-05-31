@@ -8,6 +8,7 @@ function PentaStyles() {
     black: this.color(0, 0, 0),
     white: this.color(255, 255, 255),
     red: this.color(255, 0, 0),
+    orange: this.color(255, 85, 0),
     green: this.color(0, 255, 0),
     blue: this.color(0, 0, 255),
     yellow: this.color(255, 255, 0),
@@ -19,6 +20,7 @@ function PentaStyles() {
     black: this.light(this.colors.black),
     white: this.light(this.colors.white),
     red: this.light(this.colors.red),
+    orange: this.light(this.colors.orange),
     green: this.light(this.colors.green),
     blue: this.light(this.colors.blue),
     yellow: this.light(this.colors.yellow),
@@ -30,6 +32,7 @@ function PentaStyles() {
     black: this.alpha(this.colors.black, 0),
     white: this.alpha(this.colors.white, 0),
     red: this.alpha(this.colors.red, 0),
+    orange: this.alpha(this.colors.orange, 0),
     green: this.alpha(this.colors.green, 0),
     blue: this.alpha(this.colors.blue, 0),
     yellow: this.alpha(this.colors.yellow, 0),
@@ -39,6 +42,7 @@ function PentaStyles() {
 
   this.colors.dark = {
     red: this.dark(this.colors.red),
+    orange: this.dark(this.colors.orange),
     green: this.dark(this.colors.green),
     blue: this.dark(this.colors.blue),
     yellow: this.dark(this.colors.yellow),
@@ -49,6 +53,7 @@ function PentaStyles() {
   this.strokes = {
     white: this.stroke(this.colors.white),
     red: this.stroke(this.colors.red),
+    orange: this.stroke(this.colors.orange),
     green: this.stroke(this.colors.green),
     blue: this.stroke(this.colors.blue),
     yellow: this.stroke(this.colors.yellow),
@@ -57,6 +62,7 @@ function PentaStyles() {
 
     bright: {
       red: this.stroke(this.bright(this.colors.red)),
+      orange: this.stroke(this.bright(this.colors.orange)),
       green: this.stroke(this.bright(this.colors.green)),
       blue: this.stroke(this.bright(this.colors.blue)),
       yellow: this.stroke(this.bright(this.colors.yellow)),
@@ -66,6 +72,7 @@ function PentaStyles() {
 
     dark: {
       red: this.stroke(this.dark(this.colors.red)),
+      orange: this.stroke(this.dark(this.colors.orange)),
       green: this.stroke(this.dark(this.colors.green)),
       blue: this.stroke(this.dark(this.colors.blue)),
       yellow: this.stroke(this.dark(this.colors.yellow)),
@@ -78,6 +85,7 @@ function PentaStyles() {
     transparent: this.fill(this.colors.transparent.black),
     white: this.fill(this.colors.white),
     red: this.fill(this.colors.red),
+    orange: this.fill(this.colors.orange),
     green: this.fill(this.colors.green),
     blue: this.fill(this.colors.blue),
     yellow: this.fill(this.colors.yellow),
@@ -86,6 +94,7 @@ function PentaStyles() {
 
     light: {
       red: this.fill(this.light(this.colors.red)),
+      orange: this.fill(this.light(this.colors.orange)),
       green: this.fill(this.light(this.colors.green)),
       blue: this.fill(this.light(this.colors.blue)),
       yellow: this.fill(this.light(this.colors.yellow)),
@@ -95,6 +104,7 @@ function PentaStyles() {
 
     bright: {
       red: this.fill(this.bright(this.colors.red)),
+      orange: this.fill(this.bright(this.colors.orange)),
       green: this.fill(this.bright(this.colors.green)),
       blue: this.fill(this.bright(this.colors.blue)),
       yellow: this.fill(this.bright(this.colors.yellow)),
@@ -106,6 +116,7 @@ function PentaStyles() {
   this.fills.aShineOf = {
     white: this.makeAShineOf(this.colors.white),
     red: this.makeAShineOf(this.colors.red),
+    orange: this.makeAShineOf(this.colors.orange),
     green: this.makeAShineOf(this.colors.green),
     blue: this.makeAShineOf(this.colors.blue),
     yellow: this.makeAShineOf(this.colors.yellow),
@@ -116,6 +127,7 @@ function PentaStyles() {
   this.fills.aGlowOf = {
     white: this.makeAGlowOf(this.colors.white),
     red: this.makeAGlowOf(this.colors.red),
+    orange: this.makeAGlowOf(this.colors.orange),
     green: this.makeAGlowOf(this.colors.green),
     blue: this.makeAGlowOf(this.colors.blue),
     yellow: this.makeAGlowOf(this.colors.yellow),
@@ -205,15 +217,18 @@ PentaStyles.prototype.getRadialGradientFillStyleMaker = function (innerColor, ou
   }
 };
 
-PentaStyles.prototype.makeAShineOf = function (color) {
+PentaStyles.prototype.makeAShineOf = function (color, alpha, range) {
+  alpha = alpha || this.lightAlpha;
+  range = range || PM.gold_;
   let transparentColor = this.alpha(color, 0);
-  color = this.alpha(color, this.lightAlpha);
-  return this.getRadialGradientFillStyleMaker(transparentColor, color, PM.gold_, 1);
+  color = this.alpha(color, alpha);
+  return this.getRadialGradientFillStyleMaker(transparentColor, color, range, 1);
 };
 
-PentaStyles.prototype.makeAGlowOf = function (color) {
+PentaStyles.prototype.makeAGlowOf = function (color, alpha) {
+  alpha = alpha || this.lightAlpha;
   let transparentColor = this.alpha(color, 0);
-  color = this.alpha(color, 1 - this.lightAlpha);
+  color = this.alpha(color, 1 - alpha);
   return this.getRadialGradientFillStyleMaker(color, transparentColor, 0, PM.out2in);
 };
 

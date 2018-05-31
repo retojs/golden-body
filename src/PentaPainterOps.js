@@ -2,7 +2,7 @@ function PentaPainterOps() {
   this.styler = new PentaTreeStyler()
 }
 
-PentaPainterOps.prototype.opsList = ['drawCircle', 'fillCircle', 'drawPentagon', 'fillPentagon', 'drawPentagram', 'fillPentagram', 'drawStar', 'fillStar'];
+PentaPainterOps.prototype.opsList = ['fillCircle', 'fillPentagon', 'fillPentagram', 'fillStar', 'drawPentagon', 'drawPentagram', 'drawStar', 'drawCircle',];
 
 /**
  * Copies all properties in the list of PentaPainterOps from the specified object into a new object.
@@ -130,10 +130,10 @@ PentaPainterOps.prototype.fillPentagram = function (penta, style) {
 
   ctx.beginPath();
   ctx.moveTo.apply(ctx, penta.p0);
-  ctx.lineTo.apply(ctx, core.p0);
+  ctx.lineTo.apply(ctx, core.p3);
   for (let i = 0; i < 5; i++) {
     ctx.lineTo.apply(ctx, penta['p' + i]);
-    ctx.lineTo.apply(ctx, core['p' + i]);
+    ctx.lineTo.apply(ctx, core['p' + (i + 3) % 5]);
   }
   ctx.fill();
 };
@@ -145,19 +145,65 @@ PentaPainterOps.prototype.drawStar = function (penta, style) {
 
   ctx.beginPath();
   ctx.moveTo.apply(ctx, penta.p0);
-  ctx.lineTo.apply(ctx, core.p0);
+  ctx.lineTo.apply(ctx, core.p3);
   for (let i = 0; i < 5; i++) {
     ctx.lineTo.apply(ctx, penta['p' + i]);
-    ctx.lineTo.apply(ctx, core['p' + i]);
+    ctx.lineTo.apply(ctx, core['p' + (i + 3) % 5]);
   }
   ctx.lineTo.apply(ctx, penta.p0);
   ctx.stroke();
 };
 
-
 PentaPainterOps.prototype.fillStar = function (penta, style) {
   this.fillPentagram(penta, style);
 };
+
+PentaPainterOps.prototype.drawLargeInnerDiamond = function (pentaTree, style) {
+  let ctx = goldenContext.ctx;
+  this.styler.assignStyleProperties(style);
+
+  const innerUpper = pentaTree.inner.upper;
+  const innerLower = pentaTree.inner.lower;
+  const middleUpper = pentaTree.middle.upper;
+
+  ctx.beginPath();
+  this.lineTo(innerUpper, 0, true);
+  this.lineTo(innerUpper, 2);
+  this.lineTo(innerUpper, 4);
+  this.lineTo(innerLower, 2);
+  this.lineTo(innerUpper, 0);
+  ctx.fill()
+  ctx.stroke();
+};
+
+PentaPainterOps.prototype.drawSmallInnerDiamond = function (pentaTree, style) {
+  let ctx = goldenContext.ctx;
+  this.styler.assignStyleProperties(style);
+
+  const coreInnerUpper = pentaTree.cores.inner.upper;
+  const innerLower = pentaTree.inner.lower;
+  const middleUpper = pentaTree.middle.upper;
+
+  ctx.beginPath();
+  this.lineTo(coreInnerUpper, 2, true);
+  this.lineTo(innerLower, 0);
+  this.lineTo(innerLower, 2);
+  this.lineTo(innerLower, 4);
+  this.lineTo(coreInnerUpper, 2);
+  ctx.fill()
+  ctx.stroke();
+};
+
+PentaPainterOps.prototype.lineTo = function (penta, index, moveTo) {
+  let ctx = goldenContext.ctx;
+  let x = penta['p' + index][0];
+  let y = penta['p' + index][1];
+  if (moveTo) {
+    ctx.moveTo(x, y);
+  } else {
+    ctx.lineTo(x, y);
+  }
+}
 
 /**
  * Returns a promise that is resolved when the background image's onload event occurs.

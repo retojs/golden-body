@@ -48,72 +48,84 @@ function getSelectedText(el) {
     }
 }
 
-function setupCanvasZoom() {
+function setupCanvasZoomNTranslate() {
 
     goldenContext.zoom = 1.0;
     goldenContext.translate = { x: 0, y: 0 };
 
+    let startScreenPos;
+    let startCanvasPos;
     let translateStart;
     let zoomStart;
-    let zoomStartScreenPos;
-    let zoomStartCanvasPos;
 
     goldenContext.canvas.addEventListener('mousedown', (event) => {
+        startScreenPos = [event.screenX, event.screenY];
+        startCanvasPos = mousePos2canvasPos(event.clientX, event.clientY);
+        translateStart = { x: goldenContext.translate.x, y: goldenContext.translate.y };
         if (event.ctrlKey) {
-            translateStart = { x: goldenContext.translate.x, y: goldenContext.translate.y };
             zoomStart = goldenContext.zoom;
-            zoomStartScreenPos = [event.screenX, event.screenY];
-            zoomStartCanvasPos = mousePos2canvasPos(event.clientX, event.clientY);
         }
     })
 
     document.addEventListener('mousemove', (event) => {
-        if (event.ctrlKey && zoomStartScreenPos) {
-            let zoomScreenPos = [event.screenX, event.screenY];
-            let zoomFactor = {
-                screenX: zoomScreenPos[0] / zoomStartScreenPos[0],
-                screenY: zoomScreenPos[1] / zoomStartScreenPos[1],
-                screenMinusOffsetX: (zoomScreenPos[0] - getCanvasBounds().x * 1.5) / (zoomStartScreenPos[0] - getCanvasBounds().x * 1.5),
-                screenMinusOffsetY: (zoomScreenPos[1] - getCanvasBounds().y * 1.5) / (zoomStartScreenPos[1] - getCanvasBounds().y * 1.5)
-            };
-            if (zoomFactor.screenX > 1.0) {
-                //zoomFactor.value = zoomFactor.screenMinusOffsetX;
-                zoomFactor.value = Math.max(zoomFactor.screenMinusOffsetX, zoomFactor.screenMinusOffsetY);
-            } else {
-                // zoomFactor.value = zoomFactor.screenX;
-                zoomFactor.value = Math.min(zoomFactor.screenX, zoomFactor.screenY);
+        if (event.ctrlKey) {
+            if (zoomStart) {
+                goldenContext.zoom = calculateZoom([event.screenX, event.screenY]);
+                goldenContext.translate = calculateTranslation(goldenContext.zoom);
+                repaint();
             }
-            let zoom = zoomStart * zoomFactor.value;
-            goldenContext.zoom = zoom;
-
-            // Equation to calculate the translation for a given zoom:
-            //
-            // # Coordinate transformation:
-            //    canvasPos.x = viewPortPos.x / zoom - translate.x (see function mousePos2canvasPos)
-            // -> viewPortPos.x = (canvasPos.x + translate) * zoom 
-            // 
-            // # Invariant: 
-            //    viewPortPos = mousePosition at zoom start does not move while zooming.
-            // -> zoomStartViewPortPos.x = (zoomStartCanvasPos.x + startTranslate.x) * startZoom
-            //                           = (zoomStartCanvasPos.x + translate.x) * zoom
-            // -> translate.x = (zoomStartCanvasPos.x + startTranslate.x) * startZoom / zoom - zoomStartCanvasPos.x
-
-            goldenContext.translate.x = ((zoomStartCanvasPos.x + translateStart.x) * zoomStart / zoom) - zoomStartCanvasPos.x;
-            goldenContext.translate.y = ((zoomStartCanvasPos.y + translateStart.y) * zoomStart / zoom) - zoomStartCanvasPos.y;
-
-            window.requestAnimationFrame(() => {
-                goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
-            });
+        } else if (translateStart && goldenContext.hitSpots.length === 0) {
+            goldenContext.translate.x = translateStart.x + getScale() * (event.screenX - startScreenPos[0]) / goldenContext.zoom;
+            goldenContext.translate.y = translateStart.y + getScale() * (event.screenY - startScreenPos[1]) / goldenContext.zoom;
+            repaint();
         }
     })
 
     document.addEventListener('mouseup', (event) => {
-        zoomStartScreenPos = undefined;
-        zoomStartClientPos = undefined;
+        startScreenPos = undefined;
+        startCanvasPos = undefined;
+        translateStart = undefined;
+        zoomStart = undefined;
+        repaint();
+    })
+
+    function repaint() {
         window.requestAnimationFrame(() => {
             goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
         });
-    })
+    }
+
+    function calculateZoom(screenPos) {
+        console.log("getCanvasBounds().x ", getCanvasBounds().x, ", screenPos[0] ", screenPos[0]);
+        let zoomFactor = {
+            screenX: screenPos[0] / startScreenPos[0],
+            screenY: screenPos[1] / startScreenPos[1],
+            screenMinusOffsetX: (screenPos[0] - getCanvasBounds().x * 3) / (startScreenPos[0] - getCanvasBounds().x * 3),
+            screenMinusOffsetY: (screenPos[1] - getCanvasBounds().y * 3) / (startScreenPos[1] - getCanvasBounds().y * 3)
+        };
+        zoomFactor.value = 1 / zoomFactor.screenMinusOffsetX;
+        return zoomStart * zoomFactor.value;
+    }
+
+    function calculateTranslation(zoom) {
+
+        // Equation to calculate the translation for a given zoom:
+        //
+        // # Coordinate transformation:
+        //    canvasPos.x = viewPortPos.x / zoom - translate.x (see function mousePos2canvasPos)
+        // -> viewPortPos.x = (canvasPos.x + translate) * zoom 
+        // 
+        // # Invariant: 
+        //    viewPortPos = mousePosition at zoom start does not move while zooming.
+        // -> zoomStartViewPortPos.x = (startCanvasPos.x + startTranslate.x) * startZoom
+        //                           = (startCanvasPos.x + translate.x) * zoom
+        // -> translate.x = (startCanvasPos.x + startTranslate.x) * startZoom / zoom - startCanvasPos.x
+
+        return {
+            x: ((startCanvasPos.x + translateStart.x) * zoomStart / zoom) - startCanvasPos.x,
+            y: ((startCanvasPos.y + translateStart.y) * zoomStart / zoom) - startCanvasPos.y
+        };
+    }
 }
 
 
@@ -135,8 +147,8 @@ function setupPentaDragNDrop() {
 
         let canvasMousePos = mousePos2canvasPos(event.clientX, event.clientY);
         paintPosition(canvasMousePos);
-        goldenContext.hitSpots = getSpotsAtPos(canvasMousePos);
-        console.log("hitSpots= ", goldenContext.hitSpots);
+        goldenContext.hitSpots = getVisibleSpotsAtPos(canvasMousePos);
+        //console.log("hitSpots= ", goldenContext.hitSpots);
         goldenContext.hitSpots.forEach(spot => spot.penta.saveInitialValues());
     });
 
@@ -157,7 +169,12 @@ function setupPentaDragNDrop() {
                 } else {
                     spot.penta.moveEdge(spot.index, spot.pos);
                 }
-            })
+            });
+
+            // TODO: prepare list of visible spots per position (some spots are overlapping, i.e. "connected")
+            //   traverse tree, for each penta, add all edges, if edges are at the same spot, add them to the same list 
+            // from one spot I want to get all connected spots
+            // when moving a spot collect all moving edges and move their connected spots, too
             window.requestAnimationFrame(() => goldenContext.painter.paintGoldenBody(goldenContext.goldenBody));
         } else if (HIGHLIGHT_SPOTS_ON_HOVER) {
             goldenContext.hoverSpots = getSpotsAtPos(canvasMousePos);
@@ -177,6 +194,11 @@ function setupPentaDragNDrop() {
         goldenContext.hitSpots = [];
     })
 
+    function getVisibleSpotsAtPos(canvasMousePos) {
+        return goldenContext.visiblePentas.reduce((foundSpots, penta) => foundSpots.concat(penta.getEdgesAtPos(canvasMousePos, spotRadius)), []);
+    }
+
+    /** deprecated */
     function getSpotsAtPos(canvasMousePos, subtree, foundSpots) {
         subtree = subtree || goldenContext.goldenBody.pentaTree;
         foundSpots = foundSpots || [];
@@ -224,27 +246,63 @@ function setupPentaDragNDrop() {
     }
 }
 
+const paintOrderStandard = `
+supers.outer
+supers.inner
+supers.middle
+outer
+inner
+middle
+cores.outer
+cores.inner
+cores.middle
+spots.cores.middle
+spots.cores.outer
+spots.middle
+spots.inner
+spots.outer
+`;
+
+const paintOrderOuterAndMiddle = `
+supers.outer
+supers.middle
+outer
+middle
+cores.inner
+cores.middle
+`;
+
+const paintOrderDiamondsSimple = `
+inner
+supers.inner
+diamonds.large
+diamonds.small
+spots.inner 
+spots.middle.upper
+`;
+
+const paintOrderDiamondsExtended = `
+inner
+supers.inner
+supers.middle
+middle
+diamonds.large
+diamonds.small
+spots.inner 
+spots.middle.upper
+`;
+
 
 function setupPaintOrderEditing() {
     let paintOrderTextArea = document.getElementById('golden-body-paint-order');
-    paintOrderTextArea.innerHTML = `inner
-    middle `;
-    // middle 
-    //  inner
-    //  supers.outer
-    //  supers.middle
-    // cores.outer
-    // cores.inner
-    // middle
-    // cores.middle
-    // spots.cores
-    // spots.outer
-    // spots.inner
-    // spots.middle
-
-
     let throttleMillis = 500;
     let lastKeyUp = -1;
+
+     paintOrderTextArea.innerHTML = paintOrderStandard;
+    // paintOrderTextArea.innerHTML = paintOrderOuterAndMiddle;
+    // paintOrderTextArea.innerHTML = paintOrderDiamondsSimple;
+    // paintOrderTextArea.innerHTML = paintOrderDiamondsExtended;
+
 
     paintOrderTextArea.addEventListener('keyup', () => {
         lastKeyUp = Date.now();
@@ -266,12 +324,10 @@ function setupPaintOrderSelection() {
     let paintOrderElement = document.getElementById('golden-body-paint-order');
     paintOrderElement.addEventListener('mouseup', (event) => {
         let selected = getSelectedText(paintOrderElement);
-        console.log("selected ", selected);
         if (selected && selected.trim()) {
             let propertyPathArrayArray = goldenContext.painter.pathString2Array(selected.trim());
             let properties = styler.styleProperties.concat(ops.opsList);
             let styleProps = styler.getCascadingProperties(goldenContext.goldenBody.styleTree, propertyPathArrayArray, properties);
-            console.log("style props of " + selected.trim() + ": ", styleProps);
         }
     });
 }

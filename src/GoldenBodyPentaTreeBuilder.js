@@ -125,55 +125,12 @@ function createPentaTree(goldenBody) {
   };
 
   goldenBody.pentaTree.extremities = {
-    upper: {
-      upper: createExtremities(innerUpper, 2 * PM.deg72, innerLower, outerLower),
-      lower: createExtremities(innerUpper, PM.deg72, innerLower, outerLower)
-    },
-    lower: createExtremities(innerLower, 2 * PM.deg72, innerUpper, outerUpper)
+    // upper: {
+    //   upper: createExtremities(innerUpper, 2 * PM.deg72, innerLower, outerLower),
+    //   lower: createExtremities(innerUpper, PM.deg72, innerLower, outerLower)
+    // },
+    // lower: createExtremities(innerLower, 2 * PM.deg72, innerUpper, outerUpper)
   };
-
-  goldenBody.pentaTree.outerExtremities = {
-    left: createOuterExtremity(PM.deg36 + PM.deg72),
-    right: createOuterExtremity(-PM.deg36 - PM.deg72)
-  };
-
-  function createOuterExtremity(angle) {
-    let shoulder = outerUpper.clone({
-      radius: outerUpper.radius * PM.gold_,
-      angle: outerUpper.angle + PM.deg36
-    });
-    shoulder.move([0, outerUpper.radius]);
-    shoulder.rotate(angle, outerUpper.getCenter());
-
-    let innerShoulder = shoulder.clone({
-      radius: shoulder.innerRadius,
-      angle: shoulder.angle + PM.deg36
-    });
-
-    let upperArm = innerShoulder.clone({
-      radius: innerShoulder.radius * PM.gold_,
-      angle: innerShoulder.angle + PM.deg36
-    });
-    upperArm.move([0, 2 * shoulder.innerRadius]);
-    upperArm.rotate(angle, innerShoulder.getCenter());
-
-    let lowerArm = upperArm.clone({
-      radius: shoulder.radius * PM.gold_
-    })
-
-    let ellbow = lowerArm.clone({
-      radius: lowerArm.innerRadius,
-      angle: upperArm.angle + PM.deg36
-    })
-
-    return {
-      shoulder: shoulder,
-      innerShoulder: innerShoulder,
-      upperArm: upperArm,
-      ellbow: ellbow,
-      lowerArm: lowerArm
-    };
-  }
 
   function createExtremities(center, angle, extInner, extOuter) {
     return {
