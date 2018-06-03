@@ -71,12 +71,8 @@ Penta.moveAll = function (pentas, delta) {
   pentas.forEach((p) => p.move(delta));
 };
 
-Penta.prototype.resize = function (value) {
-  if ('' + value === '' + parseInt(value)) { // if factor is integer
-    this.radius = value; // then set value as new radius
-  } else { // if value is float
-    this.radius *= value; // multiply radius
-  }
+Penta.prototype.resize = function (radius) {
+  this.radius = radius;
   this.calcPs();
   return this;
 }
@@ -323,7 +319,7 @@ Penta.prototype.createPentagramExtension = function () {
 
 Penta.prototype.createCoreDiamond = function (index) {
   let core = this.createCore();
-  
+
   let indexPlus = (index + 2) % 5;
   let indexMinus = (index - 2 + 5) % 5;
   let p = penta['p' + index];

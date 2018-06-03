@@ -72,12 +72,12 @@ function setupCanvasZoomNTranslate() {
             if (zoomStart) {
                 goldenContext.zoom = calculateZoom([event.screenX, event.screenY]);
                 goldenContext.translate = calculateTranslation(goldenContext.zoom);
-                repaint();
+                repaint(true);
             }
         } else if (translateStart && goldenContext.hitSpots.length === 0) {
             goldenContext.translate.x = translateStart.x + getScale() * (event.screenX - startScreenPos[0]) / goldenContext.zoom;
             goldenContext.translate.y = translateStart.y + getScale() * (event.screenY - startScreenPos[1]) / goldenContext.zoom;
-            repaint();
+            repaint(true);
         }
     })
 
@@ -86,14 +86,9 @@ function setupCanvasZoomNTranslate() {
         startCanvasPos = undefined;
         translateStart = undefined;
         zoomStart = undefined;
-        repaint();
+        repaint(true);
     })
 
-    function repaint() {
-        window.requestAnimationFrame(() => {
-            goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
-        });
-    }
 
     function calculateZoom(screenPos) {
         console.log("getCanvasBounds().x ", getCanvasBounds().x, ", screenPos[0] ", screenPos[0]);
@@ -129,6 +124,17 @@ function setupCanvasZoomNTranslate() {
 }
 
 
+function setupLegendVisibility(){
+    const legendElement = document.getElementById('interaction-legend');
+    goldenContext.canvas.addEventListener('mouseenter', () => {
+        legendElement.style.display = "block";
+    });
+    goldenContext.canvas.addEventListener('mouseleave', () => {
+        legendElement.style.display = "none";
+    });
+
+}
+
 function setupPentaDragNDrop() {
 
     let spotRadius = goldenContext.scale * 10;
@@ -141,12 +147,8 @@ function setupPentaDragNDrop() {
     goldenContext.canvas.addEventListener('mousedown', (event) => {
         if (event.ctrlKey) return;
 
-        if (event.shiftKey) {
-            paintPosition([500, 500], "#f00");
-        }
-
         let canvasMousePos = mousePos2canvasPos(event.clientX, event.clientY);
-        paintPosition(canvasMousePos);
+        //paintPosition(canvasMousePos);
         goldenContext.hitSpots = getVisibleSpotsAtPos(canvasMousePos);
         //console.log("hitSpots= ", goldenContext.hitSpots);
         goldenContext.hitSpots.forEach(spot => spot.penta.saveInitialValues());
@@ -160,7 +162,7 @@ function setupPentaDragNDrop() {
             if (event.shiftKey) {
                 goldenContext.TRIANGLE_MOVE_EDGE = true;
             }
-            PentaPainterOps.DO_PAINT_SEGMENTS = true;
+            // PentaPainterOps.DO_PAINT_SEGMENTS = true;
             goldenContext.hitSpots.forEach(spot => {
                 spot.pos[0] = canvasMousePos.x - spot.hitPos.x;
                 spot.pos[1] = canvasMousePos.y - spot.hitPos.y;
@@ -292,23 +294,32 @@ spots.inner
 spots.middle.upper
 `;
 
+const paintOrderInnerBase = `
+supers.inner
+supers.middle
+inner
+middle
+spots.middle
+spots.inner
+`;
+
 
 function setupPaintOrderEditing() {
     let paintOrderTextArea = document.getElementById('golden-body-paint-order');
     let throttleMillis = 500;
     let lastKeyUp = -1;
 
-     paintOrderTextArea.innerHTML = paintOrderStandard;
-    // paintOrderTextArea.innerHTML = paintOrderOuterAndMiddle;
+    // paintOrderTextArea.innerHTML = paintOrderStandard;
+    paintOrderTextArea.innerHTML = paintOrderOuterAndMiddle;
     // paintOrderTextArea.innerHTML = paintOrderDiamondsSimple;
     // paintOrderTextArea.innerHTML = paintOrderDiamondsExtended;
-
+    // paintOrderTextArea.innerHTML = paintOrderInnerBase;
 
     paintOrderTextArea.addEventListener('keyup', () => {
         lastKeyUp = Date.now();
         setTimeout(() => {
             if (getDeltaTime(lastKeyUp) >= throttleMillis) {
-                goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
+                repaint();
             }
         }, throttleMillis);
     });
@@ -328,6 +339,77 @@ function setupPaintOrderSelection() {
             let propertyPathArrayArray = goldenContext.painter.pathString2Array(selected.trim());
             let properties = styler.styleProperties.concat(ops.opsList);
             let styleProps = styler.getCascadingProperties(goldenContext.goldenBody.styleTree, propertyPathArrayArray, properties);
+        }
+    });
+}
+
+
+function setupAnimations() {
+
+    const ops = new PentaPainterOps();
+
+    goldenContext.animationCanvas = document.createElement('canvas');
+    goldenContext.animationCanvas.width = goldenContext.canvasSize.width;
+    goldenContext.animationCanvas.height = goldenContext.canvasSize.height;
+
+    goldenContext.animationStartTime = 0;
+
+    goldenContext.animateTreePath = ["spots.cores.outer", "spots.cores.middle", "spots.inner", "spots.outer", "spots.middle"];
+
+    goldenContext.animateSpot = (spot, propertyPathArray) => {
+        let rotationPerSecond = Math.PI;
+        let rotationAngle = rotationPerSecond * (dt() / 1000);
+        spot.rotate(rotationAngle);
+        let radius = ops.styler.getCascadingProperties(goldenContext.goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
+        spot.resize(radius + (radius * 0.4 * Math.sin(2 * rotationAngle)));
+    };
+
+    document.addEventListener('keypress', (event) => {
+        if (event.code === 'Space') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!goldenContext.animationStartTime) {
+                startAnimation();
+            } else {
+                stopAnimation();
+            }
+        }
+    });
+
+    function startAnimation() {
+        goldenContext.animationStartTime = Date.now();
+        goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
+        window.requestAnimationFrame(animate);
+    }
+
+    function stopAnimation() {
+        goldenContext.animationStartTime = 0;
+        repaint();
+    }
+
+    function animate() {
+        if (goldenContext.animationStartTime) {
+            //console.log("animation running for ", (dt() / 1000).toFixed(2), " seconds...");
+            repaint(true);
+            window.requestAnimationFrame(animate);
+        }
+    }
+
+    function dt() {
+        return Date.now() - goldenContext.animationStartTime
+    };
+}
+
+
+function repaint(unchanged) {
+    window.requestAnimationFrame(() => {
+        if (unchanged) {
+            goldenContext.painter.repaint(goldenContext.offscreenCanvas);
+            if (goldenContext.animationStartTime) {
+                goldenContext.painter.paintAnimation(goldenContext.goldenBody.pentaTree, goldenContext.goldenBody.styleTree, goldenContext.animateTreePath);
+            }
+        } else {
+            goldenContext.painter.paintGoldenBody(goldenContext.goldenBody);
         }
     });
 }

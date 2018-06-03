@@ -19,32 +19,36 @@ function PentaPainter() {
  * The applicable canvas styles are collected from the Golden Body's style tree (cascading).
  */
 PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
+  console.log("paintGoldenBody", new Date());
+
   let ctx = goldenContext.ctx;
+
+  // ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
+  // ctx.lineWidth = 1.75;
+  ctx.lineJoin = "round";
 
   goldenContext.visiblePentas = [];
   goldenContext.visibleSpots = [];
 
   createStyleTree(goldenBody);
-
-  ctx.restore();
-  ctx.resetTransform();
-  ctx.scale(goldenContext.zoom || 1, goldenContext.zoom || 1);
-  ctx.translate(goldenContext.translate.x, goldenContext.translate.y);
-  ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
+  // createDiamondStyleTree(goldenBody);
 
   /**
    * Here we are using a Promise to wait for the background image
    * to be loaded and painted on the canvas,
    * before we're painting the penta-model on top of it.
    */
-  return this.ops.paintBgrImage(this.bgrImageUrl)
+  return this.ops.paintBgrImage(this.bgrImageUrl, ctx)
     .then(() => {
       let paintOrderLines = document.getElementById('golden-body-paint-order').value.split('\n');
       paintOrderLines.forEach(line => {
         line = line.trim();
         if (line) {
+          if (goldenContext.animationStartTime && goldenContext.animateTreePath.some(path => line.indexOf(path) === 0)) {
+            return; // don't paint animated elements here if animation is running
+          }
           if (line.indexOf('spots') === 0) {
-            this.paintSpots(goldenBody, line.substr('spots.'.length));
+            this.paintSpots(goldenBody, line);
           } else if (line.indexOf('diamonds') === 0) {
             this.paintDiamonds(goldenBody, line);
           } else {
@@ -53,14 +57,55 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
         }
       });
       //console.log("painter: goldenContext.hitSpots=", goldenContext.hitSpots);
-      this.paintHitSpots(goldenContext.hitSpots, {
-        fillStyle: "rgba(255, 0, 255, 0.2)"
-      });
+      // this.paintHitSpots(goldenContext.hitSpots, {
+      //   fillStyle: "rgba(255, 0, 255, 0.2)"
+      // });
       //console.log("painter: goldenContext.hoverSpots=", goldenContext.hoverSpots);
-      this.paintHitSpots(goldenContext.hoverSpots, {
-        fillStyle: "rgba(255, 0, 255, 0.1)"
-      });
+      // this.paintHitSpots(goldenContext.hoverSpots, {
+      //   fillStyle: "rgba(255, 0, 255, 0.1)"
+      // });
+    })
+    .then(() => {
+      this.repaint(goldenContext.offscreenCanvas, true);
     });
+};
+
+PentaPainter.prototype.repaint = function (offscreenCanvas, clearCanvas) {
+  const ctx = goldenContext.canvas.getContext('2d');
+  if (clearCanvas) {
+    ctx.fillStyle = goldenContext.backgroundColor;
+    ctx.fillRect(0, 0, goldenContext.canvasSize.width, goldenContext.canvasSize.height);
+  }
+  ctx.drawImage(
+    offscreenCanvas,
+    goldenContext.translate.x * goldenContext.zoom,
+    goldenContext.translate.y * goldenContext.zoom,
+    goldenContext.canvasSize.width * goldenContext.zoom,
+    goldenContext.canvasSize.height * goldenContext.zoom,
+  );
+};
+
+PentaPainter.prototype.paintAnimation = function (pentaTree, styleTree, paintOrderArray) {
+  let ctx = goldenContext.ctx = goldenContext.animationCanvas.getContext("2d");
+  ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
+  ctx.lineWidth = 4 * 1.75;
+  ctx.lineJoin = "round";
+  ctx.clearRect(0, 0, goldenContext.canvasSize.width, goldenContext.canvasSize.height);
+
+  paintOrderArray.forEach(line => {
+    let goldenBody = { pentaTree, styleTree };
+    let propertyPathArray = this.pathString2Array(line);
+    if (line.indexOf('spots') === 0) {
+      propertyPathArray = propertyPathArray.slice(1);
+      this.paintSpotsRecursively(goldenBody, goldenContext.goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+    } else {
+      this.paintPentaSubtreeRecursively(goldenBody, goldenContext.goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
+    }
+  });
+
+  this.repaint(goldenContext.animationCanvas);
+
+  goldenContext.ctx = goldenContext.offscreenCanvas.getContext("2d");
 };
 
 PentaPainter.prototype.paintHitSpots = function (hitSpots, style) {
@@ -122,17 +167,17 @@ PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArra
       this.ops[op](penta, stylesPerOp[op]);
     }
   });
-  if (penta.movingEdges && penta.movingEdges.length > 0) {
-    penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#00f" } }));
-    this.ops.fillSimpleCircle({ x: penta.x, y: penta.y, radius: 20, style: { fillStyle: "#0f0" } });
-  }
+  // if (penta.movingEdges && penta.movingEdges.length > 0) {
+  //   penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#00f" } }));
+  //   this.ops.fillSimpleCircle({ x: penta.x, y: penta.y, radius: 20, style: { fillStyle: "#0f0" } });
+  // }
 };
 
 //
 // paint Golden Spots
 
 PentaPainter.prototype.paintSpots = function (goldenBody, propertyPath) {
-  let propertyPathArray = this.pathString2Array(propertyPath);
+  let propertyPathArray = this.pathString2Array(propertyPath).slice(1);
   this.paintSpotsRecursively(goldenBody, goldenBody.getPentaSubtree(propertyPathArray), propertyPathArray);
 }
 
@@ -162,11 +207,15 @@ PentaPainter.prototype.paintSpotsRecursively = function (goldenBody, subtree, pr
 PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPathArray) {
   goldenContext.visibleSpots.push(penta);
 
-  let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
   let radius = this.ops.styler.getCascadingProperties(goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
   let spots = penta.createEdges(radius);
-
+  let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
+  this.ops.styler.applyTreeStyles(goldenBody.styleTree, propertyPathArray, penta);
+ 
   spots.forEach((spot) => {
+    if (goldenContext.animationStartTime) {
+      goldenContext.animateSpot(spot, propertyPathArray);
+    }
     this.ops.opsList.forEach(op => {
       if (typeof stylesPerOp[op] === 'boolean') {
         if (stylesPerOp[op]) {

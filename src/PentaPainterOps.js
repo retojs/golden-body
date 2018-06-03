@@ -208,8 +208,7 @@ PentaPainterOps.prototype.lineTo = function (penta, index, moveTo) {
 /**
  * Returns a promise that is resolved when the background image's onload event occurs.
  */
-PentaPainterOps.prototype.paintBgrImage = function (url) {
-  let ctx = goldenContext.ctx;
+PentaPainterOps.prototype.paintBgrImage = function (url, ctx) {
   let bgrImage = new Image();
   bgrImage.src = url;
 

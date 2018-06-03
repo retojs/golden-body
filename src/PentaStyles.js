@@ -1,9 +1,6 @@
 function PentaStyles() {
   let ctx = goldenContext.ctx;
 
-  ctx.lineWidth = 1.75;
-  ctx.lineJoin = "round";
-
   this.colors = {
     black: this.color(0, 0, 0),
     white: this.color(255, 255, 255),
