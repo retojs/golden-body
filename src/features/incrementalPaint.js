@@ -42,7 +42,7 @@ function setupIncrementalPaint() {
     let lastClick;
 
     goldenContext.canvas.addEventListener('mouseup', (event) => {
-        if (isDoubleClick) {
+        if (isDoubleClick()) {
             start(event.shiftKey);
         } else {
             lastClick = Date.now();
