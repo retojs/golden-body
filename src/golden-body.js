@@ -27,6 +27,7 @@ setupPentaDragNDrop();
 setupCanvasZoomNTranslate();
 setupPaintOrderEditing();
 setupPaintOrderSelection();
+setupIncrementalPaint();
 setupAnimations();
 
 goldenContext.setup = function () {

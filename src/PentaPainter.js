@@ -40,8 +40,7 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
    */
   return this.ops.paintBgrImage(this.bgrImageUrl, ctx)
     .then(() => {
-      let paintOrderLines = document.getElementById('golden-body-paint-order').value.split('\n');
-      paintOrderLines.forEach(line => {
+      goldenContext.paintOrderLines.forEach(line => {
         line = line.trim();
         if (line) {
           if (goldenContext.animationStartTime && goldenContext.animateTreePath.some(path => line.indexOf(path) === 0)) {
@@ -211,7 +210,7 @@ PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPa
   let spots = penta.createEdges(radius);
   let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
   this.ops.styler.applyTreeStyles(goldenBody.styleTree, propertyPathArray, penta);
- 
+
   spots.forEach((spot) => {
     if (goldenContext.animationStartTime) {
       goldenContext.animateSpot(spot, propertyPathArray);
