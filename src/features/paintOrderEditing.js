@@ -3,9 +3,13 @@ const paintOrderStandard = `
 supers.outer
 supers.inner
 supers.middle
+outerst.upper
+outerst.lower
 outer
 inner
+diamonds.large
 middle
+diamonds.small
 cores.outer
 cores.inner
 cores.middle
@@ -30,14 +34,16 @@ inner
 supers.inner
 diamonds.large
 diamonds.small
+middle.lower
+middle.upper
 spots.inner 
-spots.middle.upper
+spots.middle
 `;
 
 const paintOrderDiamondsExtended = `
-inner
 supers.inner
 supers.middle
+inner
 middle
 diamonds.large
 diamonds.small

@@ -10,20 +10,35 @@
   <div id="canvas-container">
     <img id="canvas-image">
     <canvas id="golden-body-canvas"></canvas>
-    <ul id="interaction-legend">
-      <li>
-        <span class="heading">mouse drag = </span> move single spot</li>
-      <li>
-        <span class="heading">Shift + mouse drag = </span> triangle-move spots</li>
-      <li>
-        <span class="heading">Ctrl + mouse drag = </span> zomm in or out</li>
-    </ul>
+    <div id="interaction-legend">
+      <ul>
+        <li>
+          <span class="heading">mouse drag = </span> move single spot</li>
+        <li>
+          <span class="heading">Shift + mouse drag = </span> triangle-move spots</li>
+        <li>
+          <span class="heading">Ctrl + mouse drag = </span> zomm in or out</li>
+      </ul>
+      <ul>
+        <li>
+          <span class="heading">double click = </span> incremental paint </li>
+        <li>
+          <span class="heading">Shift + double click = </span> backwards incremental paint</li>
+        <li>
+          <span class="heading">Space key = </span> animate</li>
+      </ul>
+      <ul>
+        <li>
+          <span class="heading">digit 1 = </span>full screen</li>
+        <li>
+      </ul>
+    </div>
     <textarea id="golden-body-paint-order" rows="15"></textarea>
     <textarea id="golden-body-penta-tree" rows="40"></textarea>
     <textarea id="golden-body-style-tree" rows="40"></textarea>
   </div>
 
-
+  <script src="GoldenRedux.js"></script>
   <script src="PentaMathik.js"></script>
   <script src="Penta.js"></script>
   <script src="PentaStyles.js"></script>
@@ -33,10 +48,12 @@
   <script src="GoldenBodyPentaTreeBuilder.js"></script>
   <script src="GoldenBodyStyleTreeBuilder.js"></script>
   <script src="GoldenBody.js"></script>
+  <script src="GoldenContext.js"></script>
 
   <script src="features/shared.js"></script>
   <script src="features/animations.js"></script>
   <script src="features/canvasZoomNTranslate.js"></script>
+  <script src="features/fullScreen.js"></script>
   <script src="features/incrementalPaint.js"></script>
   <script src="features/legendVisibility.js"></script>
   <script src="features/paintOrderEditing.js"></script>

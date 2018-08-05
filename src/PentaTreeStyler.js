@@ -61,11 +61,13 @@ PentaTreeStyler.prototype.getCascadingProperties = function (tree, propertyPathA
 
   this.assignProperties(node, result, propertyKeys);
 
-  for (let i = 0; i < propertyPathArray.length; i++) {
-    if (!node) break;
-    let property = propertyPathArray[i];
-    node = node[property];
-    this.assignProperties(node, result, propertyKeys);
+  if (propertyPathArray && propertyPathArray.length) {
+    for (let i = 0; i < propertyPathArray.length; i++) {
+      if (!node) break;
+      let property = propertyPathArray[i];
+      node = node[property];
+      this.assignProperties(node, result, propertyKeys);
+    }
   }
   return result;
 }

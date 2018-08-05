@@ -25,5 +25,7 @@ function setupPaintOrderSelection() {
         }
     }
 
+    // TODO: save state in localStorage on each Change -> undo
+
 }
 

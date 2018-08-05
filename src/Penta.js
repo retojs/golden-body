@@ -115,8 +115,63 @@ Penta.prototype.createEdges = function (radius) {
   ];
 };
 
-Penta.prototype.getPs = function (radius) {
+Penta.prototype.getPs = function () {
   return [this.p0, this.p1, this.p2, this.p3, this.p4];
+}
+
+/**
+ * Returns an object with properties n (north), s (south), e, w, ne, nw, se, sw
+ * containing the 5 pentagon edges according to their position.
+ * 
+ * TODO make this work
+ * 
+ * @param {number} radius 
+ */
+Penta.prototype.getPsByName = function (radius) {
+  const ps = [this.p0, this.p1, this.p2, this.p3, this.p4];
+  const sorted = ps.reduce((sort, p) => {
+    if (p[0] <= sort.min.x[sort.min.x.length - 1][0]) {
+      sort.min.x = sort.min.x.filter(e => e[0] === p[0]);
+      sort.min.x.push(p);
+    }
+    if (p[1] <= sort.min.y[sort.min.y.length - 1][1]) {
+      sort.min.y = sort.min.y.filter(e => e[1] === p[1]);
+      sort.min.y.push(p);
+    }
+    if (p[0] >= sort.max.x[sort.max.x.length - 1][0]) {
+      sort.max.x = sort.max.x.filter(e => e[0] === p[0]);
+      sort.max.x.push(p);
+    }
+    if (p[1] >= sort.max.y[sort.max.y.length - 1][1]) {
+      sort.max.y = sort.max.y.filter(e => e[1] === p[1]);
+      sort.max.y.push(p);
+    }
+  },
+    {
+      min: { x: 0, y: 0 },
+      max: { x: 0, y: 0 }
+    }
+  );
+
+  const byNames = {};
+
+  if (sorted.min.x.length === 1) {
+    byNames.n = sorted.min.x;
+  } else if (sorted.min.x.length === 2) {
+    let lr = sorted.min.x[0][1] < sorted.min.x[1][1];
+    byNames.ne = lr ? sorted.min.x[0] : sorted.min.x[1];
+    byNames.ne = lr ? sorted.min.x[1] : sorted.min.x[2];
+  }
+
+  if (sorted.min.y.length === 1) {
+    byNames.e = sorted.min.y;
+  } else if (sorted.min.y.length === 2) {
+    let td = sorted.min.y[0][0] < sorted.min.y[1][0];
+    byNames.ne = td ? sorted.min.y[0] : sorted.min.y[1];
+    byNames.se = td ? sorted.min.y[1] : sorted.min.y[2];
+  }
+
+  return byNames;
 }
 
 Penta.prototype.createCore = function () {
@@ -306,6 +361,8 @@ Penta.prototype.createPentagonExtension = function () {
   // TODO
 };
 
+// createExtension(type: string)
+// type = ( | | | )
 Penta.prototype.createPentagramExtension = function () {
   let offsetY = this.radius;
   if (this.angle / PM.deg72 > 2) {

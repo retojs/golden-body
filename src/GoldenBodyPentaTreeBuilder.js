@@ -83,13 +83,21 @@ function createPentaTree(goldenBody) {
       lower: lowerMiddle
     },
 
+    inner: {
+      upper: innerUpper,
+      lower: innerLower
+    },
     outer: {
       upper: outerUpper,
       lower: outerLower
     },
-    inner: {
-      upper: innerUpper,
-      lower: innerLower
+    outerst: {
+      middle: {
+        upper: middle.createOuter(),
+        lower: lowerMiddle.createOuter()
+      },
+      upper: outerUpper.createOuter(),
+      lower: outerLower.createOuter()
     },
 
     cores: {
@@ -98,24 +106,24 @@ function createPentaTree(goldenBody) {
         lower: lowerMiddle.createCore()
       },
 
-      outer: {
-        upper: outerUpper.createCore(),
-        lower: outerLower.createCore()
-      },
       inner: {
         upper: innerUpper.createCore(),
         lower: innerLower.createCore()
+      },
+      outer: {
+        upper: outerUpper.createCore(),
+        lower: outerLower.createCore()
       }
     },
 
     supers: {
-      outer: {
-        upper: upperOuterSuper,
-        lower: lowerOuterSuper
-      },
       inner: {
         upper: upperInnerSuper,
         lower: lowerInnerSuper
+      },
+      outer: {
+        upper: upperOuterSuper,
+        lower: lowerOuterSuper
       },
       middle: {
         upper: upperMiddleSuper,

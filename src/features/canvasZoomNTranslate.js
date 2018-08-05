@@ -10,6 +10,7 @@ function setupCanvasZoomNTranslate() {
     let zoomStart;
 
     goldenContext.canvas.addEventListener('mousedown', (event) => {
+        goldenContext.changing = true;
         startScreenPos = [event.screenX, event.screenY];
         startCanvasPos = mousePos2canvasPos(event.clientX, event.clientY);
         translateStart = { x: goldenContext.translate.x, y: goldenContext.translate.y };
@@ -37,19 +38,19 @@ function setupCanvasZoomNTranslate() {
         startCanvasPos = undefined;
         translateStart = undefined;
         zoomStart = undefined;
+        goldenContext.changing = false;
         repaint(true);
     })
 
 
     function calculateZoom(screenPos) {
-        console.log("getCanvasBounds().x ", getCanvasBounds().x, ", screenPos[0] ", screenPos[0]);
         let zoomFactor = {
             screenX: screenPos[0] / startScreenPos[0],
             screenY: screenPos[1] / startScreenPos[1],
-            screenMinusOffsetX: (screenPos[0] - getCanvasBounds().x * 3) / (startScreenPos[0] - getCanvasBounds().x * 3),
-            screenMinusOffsetY: (screenPos[1] - getCanvasBounds().y * 3) / (startScreenPos[1] - getCanvasBounds().y * 3)
+            screenMinusOffsetX: (screenPos[0] * 3 - getCanvasBounds().x) / (startScreenPos[0] * 3 - getCanvasBounds().x),
+            screenMinusOffsetY: (screenPos[1] - getCanvasBounds().y) / (startScreenPos[1] - getCanvasBounds().y)
         };
-        zoomFactor.value = 1 / zoomFactor.screenMinusOffsetX;
+        zoomFactor.value = zoomFactor.screenMinusOffsetX;
         return zoomStart * zoomFactor.value;
     }
 

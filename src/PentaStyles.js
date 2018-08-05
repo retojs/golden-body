@@ -13,142 +13,72 @@ function PentaStyles() {
     cyan: this.color(0, 255, 255)
   };
 
-  this.colors.light = {
-    black: this.light(this.colors.black),
-    white: this.light(this.colors.white),
-    red: this.light(this.colors.red),
-    orange: this.light(this.colors.orange),
-    green: this.light(this.colors.green),
-    blue: this.light(this.colors.blue),
-    yellow: this.light(this.colors.yellow),
-    magenta: this.light(this.colors.magenta),
-    cyan: this.light(this.colors.cyan)
-  };
+  const modifyColor = (modFn, colorList) => {
+    colorList = colorList || this.colors;
 
-  this.colors.transparent = {
-    black: this.alpha(this.colors.black, 0),
-    white: this.alpha(this.colors.white, 0),
-    red: this.alpha(this.colors.red, 0),
-    orange: this.alpha(this.colors.orange, 0),
-    green: this.alpha(this.colors.green, 0),
-    blue: this.alpha(this.colors.blue, 0),
-    yellow: this.alpha(this.colors.yellow, 0),
-    magenta: this.alpha(this.colors.magenta, 0),
-    cyan: this.alpha(this.colors.cyan, 0)
-  };
-
-  this.colors.dark = {
-    red: this.dark(this.colors.red),
-    orange: this.dark(this.colors.orange),
-    green: this.dark(this.colors.green),
-    blue: this.dark(this.colors.blue),
-    yellow: this.dark(this.colors.yellow),
-    magenta: this.dark(this.colors.magenta),
-    cyan: this.dark(this.colors.cyan)
-  };
-
-  this.strokes = {
-    white: this.stroke(this.colors.white),
-    red: this.stroke(this.colors.red),
-    orange: this.stroke(this.colors.orange),
-    green: this.stroke(this.colors.green),
-    blue: this.stroke(this.colors.blue),
-    yellow: this.stroke(this.colors.yellow),
-    magenta: this.stroke(this.colors.magenta),
-    cyan: this.stroke(this.colors.cyan),
-
-    bright: {
-      red: this.stroke(this.bright(this.colors.red)),
-      orange: this.stroke(this.bright(this.colors.orange)),
-      green: this.stroke(this.bright(this.colors.green)),
-      blue: this.stroke(this.bright(this.colors.blue)),
-      yellow: this.stroke(this.bright(this.colors.yellow)),
-      magenta: this.stroke(this.bright(this.colors.magenta)),
-      cyan: this.stroke(this.bright(this.colors.cyan))
-    },
-
-    dark: {
-      red: this.stroke(this.dark(this.colors.red)),
-      orange: this.stroke(this.dark(this.colors.orange)),
-      green: this.stroke(this.dark(this.colors.green)),
-      blue: this.stroke(this.dark(this.colors.blue)),
-      yellow: this.stroke(this.dark(this.colors.yellow)),
-      magenta: this.stroke(this.dark(this.colors.magenta)),
-      cyan: this.stroke(this.dark(this.colors.cyan))
-    }
-  };
-
-  this.fills = {
-    transparent: this.fill(this.colors.transparent.black),
-    white: this.fill(this.colors.white),
-    red: this.fill(this.colors.red),
-    orange: this.fill(this.colors.orange),
-    green: this.fill(this.colors.green),
-    blue: this.fill(this.colors.blue),
-    yellow: this.fill(this.colors.yellow),
-    magenta: this.fill(this.colors.magenta),
-    cyan: this.fill(this.colors.cyan),
-
-    light: {
-      red: this.fill(this.light(this.colors.red)),
-      orange: this.fill(this.light(this.colors.orange)),
-      green: this.fill(this.light(this.colors.green)),
-      blue: this.fill(this.light(this.colors.blue)),
-      yellow: this.fill(this.light(this.colors.yellow)),
-      magenta: this.fill(this.light(this.colors.magenta)),
-      cyan: this.fill(this.light(this.colors.cyan))
-    },
-
-    bright: {
-      red: this.fill(this.bright(this.colors.red)),
-      orange: this.fill(this.bright(this.colors.orange)),
-      green: this.fill(this.bright(this.colors.green)),
-      blue: this.fill(this.bright(this.colors.blue)),
-      yellow: this.fill(this.bright(this.colors.yellow)),
-      magenta: this.fill(this.bright(this.colors.magenta)),
-      cyan: this.fill(this.bright(this.colors.cyan))
-    }
-  };
-
-  this.fills.aShineOf = {
-    white: this.makeAShineOf(this.colors.white),
-    red: this.makeAShineOf(this.colors.red),
-    orange: this.makeAShineOf(this.colors.orange),
-    green: this.makeAShineOf(this.colors.green),
-    blue: this.makeAShineOf(this.colors.blue),
-    yellow: this.makeAShineOf(this.colors.yellow),
-    magenta: this.makeAShineOf(this.colors.magenta),
-    cyan: this.makeAShineOf(this.colors.cyan),
-  };
-
-  this.fills.aGlowOf = {
-    white: this.makeAGlowOf(this.colors.white),
-    red: this.makeAGlowOf(this.colors.red),
-    orange: this.makeAGlowOf(this.colors.orange),
-    green: this.makeAGlowOf(this.colors.green),
-    blue: this.makeAGlowOf(this.colors.blue),
-    yellow: this.makeAGlowOf(this.colors.yellow),
-    magenta: this.makeAGlowOf(this.colors.magenta),
-    cyan: this.makeAGlowOf(this.colors.cyan),
-  };
-
-  this.colors.alpha = [];
-  this.strokes.alpha = [];
-  this.fills.alpha = [];
-
-  for (let alpha = 1; alpha < 10; alpha++) {
-    this.colors.alpha[alpha] = {};
-    this.strokes.alpha[alpha] = {};
-    this.fills.alpha[alpha] = {};
-
-    Object.keys(this.colors).forEach(key => {
-      if (typeof this.colors[key] === 'string') {
-        this.colors.alpha[alpha][key] = this.alpha(this.colors[key], alpha / 10);
-        this.strokes.alpha[alpha][key] = { strokeStyle: this.alpha(this.colors[key], alpha / 10) };
-        this.fills.alpha[alpha][key] = { fillStyle: this.alpha(this.colors[key], alpha / 10) };
+    return (memo, key) => {
+      if (typeof colorList[key] === 'string') {
+        memo[key] = modFn.apply(this, [colorList[key]]);
       }
-    });
+      return memo;
+    }
   }
+
+  const modifyColorRecursive = (modFn, colorProps) => {
+    colorProps = colorProps || this.colors;
+
+    return (memo, key) => {
+      const colorProp = colorProps[key];
+      if (typeof colorProp === 'string') {
+        memo[key] = modFn.apply(this, [colorProp]);
+      } else if (typeof colorProp === 'object') {
+        memo[key] = Object.keys(colorProp).reduce(modifyColorRecursive(modFn, colorProp), {});
+      }
+      return memo;
+    }
+  }
+
+  const modifyAlphaRecursive = (colorProps) => {
+    colorProps = colorProps || this.colors;
+
+    return (memo, key) => {
+      const colorProp = colorProps[key];
+      if (typeof colorProp === 'string') {
+        memo[key] = colorProp;
+        memo.alpha = memo.alpha || [];
+        for (let alpha = 0; alpha < 10; alpha++) {
+          memo.alpha[alpha] = memo.alpha[alpha] || {};
+          memo.alpha[alpha][key] = this.alpha(colorProp, alpha / 10);
+        }
+      } else if (typeof colorProp === 'object') {
+        memo[key] = Object.keys(colorProp).reduce(modifyAlphaRecursive(colorProp), {});
+      }
+      return memo;
+    }
+  }
+
+  // create modified colors (colors.bright.magenta, colors.dark.cyan etc.)
+  this.colors.dark = Object.keys(this.colors).reduce(modifyColor(this.dark), {});
+  this.colors.bright = Object.keys(this.colors).reduce(modifyColor(this.bright), {});
+
+  // create 10 alpha shades for all colors (colors.alpha[5].cyan)
+  this.colors = Object.keys(this.colors).reduce(modifyAlphaRecursive(), {});
+
+  // create named alpha modified colors (colors.light.magenta, colors.transparent.cyan etc.)
+  this.colors.light = Object.keys(this.colors).reduce(modifyColor(this.light), {});
+  this.colors.transparent = Object.keys(this.colors).reduce(modifyColor(this.transparent), {});
+
+  // create strokes and fills for all color properties (strokes.light.magenta, fills.alpha[5].cyan etc.)
+  this.strokes = Object.keys(this.colors).reduce(modifyColorRecursive(this.stroke), {});
+  this.fills = Object.keys(this.colors).reduce(modifyColorRecursive(this.fill), {});
+
+  // create gradient fills for all color properties (fills.aShineOf.light.magenta, fills.aGlowOf.alpha[5].cyan etc.)
+  this.fills.aShineOf = Object.keys(this.colors).reduce(modifyColorRecursive(this.makeAShineOf), {});
+  this.fills.aGlowOf = Object.keys(this.colors).reduce(modifyColorRecursive(this.makeAGlowOf), {});
+
+  console.log("PentaStyles.colors=", this.colors);
+  console.log("PentaStyles.strokes=", this.strokes);
+  console.log("PentaStyles.fills=", this.fills);
 
   this.strokes.mix = function (color1, color2, weight1, weight2) {
     return { strokeStyle: goldenContext.pentaStyles.mixColors(color1, color2, weight1, weight2) };
@@ -250,6 +180,10 @@ PentaStyles.prototype.dark = function (colorStr, darkDecrement) {
 PentaStyles.prototype.alpha = function (colorStr, alpha) {
   let rgba = this.colorFromString(colorStr);
   return this.color(rgba[0], rgba[1], rgba[2], alpha);
+};
+
+PentaStyles.prototype.transparent = function (colorStr) {
+  return this.alpha(colorStr, 0);
 };
 
 PentaStyles.prototype.lightAlpha = 0.25;

@@ -17,18 +17,9 @@ goldenContext.offscreenCanvas = document.createElement('canvas');
 goldenContext.offscreenCanvas.width = goldenContext.canvasSize.width;
 goldenContext.offscreenCanvas.height = goldenContext.canvasSize.height;
 
-goldenContext.ctx = goldenContext.offscreenCanvas.getContext("2d");
-//goldenContext.ctx = goldenContext.canvas.getContext("2d");
+goldenContext.ctx = goldenContext.offscreenCanvas.getContext('2d');
 
 goldenContext.pentaStyles = new PentaStyles();
-
-setupLegendVisibility();
-setupPentaDragNDrop();
-setupCanvasZoomNTranslate();
-setupPaintOrderEditing();
-setupPaintOrderSelection();
-setupIncrementalPaint();
-setupAnimations();
 
 goldenContext.setup = function () {
   this.painter = new PentaPainter();
@@ -37,37 +28,61 @@ goldenContext.setup = function () {
 }
 goldenContext.setup();
 
-let canvasImage = document.getElementById('canvas-image');
-canvasImage.addEventListener("click", (event) => {
-  let gc = goldenContext;
-  let canvas = document.createElement('canvas');
-  canvas.width = 3600;
-  canvas.height = 4016;
+/** 
+  TODO: immutable sequence of states stored in local storage
 
-  gc.ctx = canvas.getContext('2d');
-  gc.painter.paintGoldenBody(gc.goldenBody).then(() => {
-    // copy canvas image data to canvas-image as data URL.
-    canvasImage.src = canvas.toDataURL("image/png");
-    gc.ctx = gc.canvas.getContext('2d');
-  });
-});
+     * states of several objects individually -> allow combination
+        pentaTree, styleTree, paintOrder etc.
+
+     * every step has 
+       - date
+       - name (optional)
+       - parent
+       - children
+
+     * state change is done via
+       - clone old state
+       - link parent and children
+       - apply change
+
+     * on each step the delta/diff is calculated and stored in local storage
+     * on demand you can also store the complete state (key frame)
+
+     * you can navigate back and forth in the sequence of states of every part/object.
+     * you can change any state in the sequence and create a new branch
+
+     * from states you can create series
+     * series have names
+     * changing series is also stored as a sequence of states or diffs.
+     
+
+    END TODO
+*/ 
+setupLegendVisibility();
+setupPentaDragNDrop();
+setupCanvasZoomNTranslate();
+setupPaintOrderEditing();
+setupPaintOrderSelection();
+setupIncrementalPaint();
+setupAnimations();
+setupFullScreen();
 
 
 // TEST
 
 let angle = PM.angle([11, 0]);
-console.log("TEST angle=0? ", angle, PM.toDeg(angle));
+console.log('TEST angle=0? ', angle, PM.toDeg(angle));
 angle = PM.angle([11, 11]);
-console.log("TEST angle=45? ", angle, PM.toDeg(angle));
+console.log('TEST angle=45? ', angle, PM.toDeg(angle));
 angle = PM.angle([0, 11]);
-console.log("TEST angle=90? ", angle, PM.toDeg(angle));
+console.log('TEST angle=90? ', angle, PM.toDeg(angle));
 angle = PM.angle([-11, 11]);
-console.log("TEST angle=135? ", angle, PM.toDeg(angle));
+console.log('TEST angle=135? ', angle, PM.toDeg(angle));
 angle = PM.angle([-11, 0]);
-console.log("TEST angle=180? ", angle, PM.toDeg(angle));
+console.log('TEST angle=180? ', angle, PM.toDeg(angle));
 angle = PM.angle([-11, -11]);
-console.log("TEST angle=225?", angle, PM.toDeg(angle));
+console.log('TEST angle=225?', angle, PM.toDeg(angle));
 angle = PM.angle([0, -11]);
-console.log("TEST angle=270? ", angle, PM.toDeg(angle));
+console.log('TEST angle=270? ', angle, PM.toDeg(angle));
 angle = PM.angle([11, -11]);
-console.log("TEST angle=315", angle, PM.toDeg(angle));
+console.log('TEST angle=315', angle, PM.toDeg(angle));

@@ -19,13 +19,13 @@ function PentaPainter() {
  * The applicable canvas styles are collected from the Golden Body's style tree (cascading).
  */
 PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
-  console.log("paintGoldenBody", new Date());
+  console.log('paintGoldenBody', new Date());
 
   let ctx = goldenContext.ctx;
 
   // ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
   // ctx.lineWidth = 1.75;
-  ctx.lineJoin = "round";
+  ctx.lineJoin = 'round';
 
   goldenContext.visiblePentas = [];
   goldenContext.visibleSpots = [];
@@ -55,13 +55,13 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
           }
         }
       });
-      //console.log("painter: goldenContext.hitSpots=", goldenContext.hitSpots);
+      //console.log('painter: goldenContext.hitSpots=', goldenContext.hitSpots);
       // this.paintHitSpots(goldenContext.hitSpots, {
-      //   fillStyle: "rgba(255, 0, 255, 0.2)"
+      //   fillStyle: 'rgba(255, 0, 255, 0.2)'
       // });
-      //console.log("painter: goldenContext.hoverSpots=", goldenContext.hoverSpots);
+      //console.log('painter: goldenContext.hoverSpots=', goldenContext.hoverSpots);
       // this.paintHitSpots(goldenContext.hoverSpots, {
-      //   fillStyle: "rgba(255, 0, 255, 0.1)"
+      //   fillStyle: 'rgba(255, 0, 255, 0.1)'
       // });
     })
     .then(() => {
@@ -82,13 +82,43 @@ PentaPainter.prototype.repaint = function (offscreenCanvas, clearCanvas) {
     goldenContext.canvasSize.width * goldenContext.zoom,
     goldenContext.canvasSize.height * goldenContext.zoom,
   );
+
+  if (!goldenContext.changing) {
+    this.paintImage();
+  }
+};
+
+PentaPainter.prototype.lastPaintImage = -1;
+
+PentaPainter.prototype.paintImage = function () {
+  this.lastPaintImage = Date.now();
+  let throttleMillis = 600;
+
+  setTimeout(() => {
+    if (getDeltaTime(this.lastPaintImage) >= throttleMillis) {
+      let canvasImage = document.getElementById('canvas-image');
+      canvasImage.src = 'assets/clock.png';
+      goldenContext.canvas.className = 'clock';
+      setTimeout(() => {
+        const data = goldenContext.canvas.toDataURL('image/png');
+        canvasImage.src = data;
+        canvasImage.title='Right-click to download the current image';  
+        goldenContext.canvas.className = '';
+      }, 30)
+    }
+  }, throttleMillis);
+
+  function getDeltaTime(refTime) {
+    return Date.now() - refTime;
+  }
 };
 
 PentaPainter.prototype.paintAnimation = function (pentaTree, styleTree, paintOrderArray) {
-  let ctx = goldenContext.ctx = goldenContext.animationCanvas.getContext("2d");
+  let ctx = goldenContext.ctx = goldenContext.animationCanvas.getContext('2d');
+
   ctx.setLineDash(goldenContext.pentaStyles.dashes.none);
   ctx.lineWidth = 4 * 1.75;
-  ctx.lineJoin = "round";
+  ctx.lineJoin = 'round';
   ctx.clearRect(0, 0, goldenContext.canvasSize.width, goldenContext.canvasSize.height);
 
   paintOrderArray.forEach(line => {
@@ -104,7 +134,7 @@ PentaPainter.prototype.paintAnimation = function (pentaTree, styleTree, paintOrd
 
   this.repaint(goldenContext.animationCanvas);
 
-  goldenContext.ctx = goldenContext.offscreenCanvas.getContext("2d");
+  goldenContext.ctx = goldenContext.offscreenCanvas.getContext('2d');
 };
 
 PentaPainter.prototype.paintHitSpots = function (hitSpots, style) {
@@ -125,7 +155,7 @@ PentaPainter.prototype.pathString2Array = function (propertyPath) {
     let pathArray = propertyPath.split('.');
     return Array.isArray(pathArray) ? pathArray : [pathArray];
   } else {
-    throw "PentaPainter.prototype.pathString2Array(propertyPath): Cannot handle propertyPath of type " + (typeof propertyPath);
+    throw 'PentaPainter.prototype.pathString2Array(propertyPath): Cannot handle propertyPath of type ' + (typeof propertyPath);
   }
 };
 
@@ -158,17 +188,16 @@ PentaPainter.prototype.paintPenta = function (penta, styleTree, propertyPathArra
   let stylesPerOp = this.ops.getStylesPerOp(styleTree, propertyPathArray);
   this.ops.styler.applyTreeStyles(styleTree, propertyPathArray, penta);
   this.ops.opsList.forEach(op => {
-    if (typeof stylesPerOp[op] === 'boolean') {
-      if (stylesPerOp[op]) {
-        this.ops[op](penta);
-      }
-    } else if (stylesPerOp[op]) {
+    if (goldenContext.animationStartTime) {
+      stylesPerOp[op] = goldenContext.animatePentaStyles(stylesPerOp[op], op, propertyPathArray);
+    }
+    if (stylesPerOp[op]) {
       this.ops[op](penta, stylesPerOp[op]);
     }
   });
   // if (penta.movingEdges && penta.movingEdges.length > 0) {
-  //   penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: "#00f" } }));
-  //   this.ops.fillSimpleCircle({ x: penta.x, y: penta.y, radius: 20, style: { fillStyle: "#0f0" } });
+  //   penta.movingEdges.forEach(edge => this.ops.fillSimpleCircle({ x: edge[0], y: edge[1], radius: 20, style: { fillStyle: '#00f' } }));
+  //   this.ops.fillSimpleCircle({ x: penta.x, y: penta.y, radius: 20, style: { fillStyle: '#0f0' } });
   // }
 };
 
@@ -209,18 +238,14 @@ PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPa
   let radius = this.ops.styler.getCascadingProperties(goldenBody.styleTree.spots, propertyPathArray, ['radius']).radius;
   let spots = penta.createEdges(radius);
   let stylesPerOp = this.ops.getStylesPerOp(goldenBody.styleTree.spots, propertyPathArray);
-  this.ops.styler.applyTreeStyles(goldenBody.styleTree, propertyPathArray, penta);
+  this.ops.styler.applyTreeStyles(goldenBody.styleTree.spots, propertyPathArray, penta);
 
   spots.forEach((spot) => {
     if (goldenContext.animationStartTime) {
       goldenContext.animateSpot(spot, propertyPathArray);
     }
     this.ops.opsList.forEach(op => {
-      if (typeof stylesPerOp[op] === 'boolean') {
-        if (stylesPerOp[op]) {
-          this.ops[op](spot);
-        }
-      } else if (stylesPerOp[op]) {
+      if (stylesPerOp[op]) {
         this.ops[op](spot, stylesPerOp[op]);
       }
     });
@@ -229,12 +254,14 @@ PentaPainter.prototype.paintPentaSpots = function (goldenBody, penta, propertyPa
 
 PentaPainter.prototype.paintDiamonds = function (goldenBody, propertyPath) {
   let propertyPathArray = this.pathString2Array(propertyPath);
-  let style = { fillStyle: "rgba(255, 0, 100, 0.5)", strokeStyle: "#c00" };
+
   let doFill = true;
   if (propertyPathArray[1] === 'large') {
+    let style = { fillStyle: 'rgba(255, 0, 100, 0.5)', strokeStyle: '#c00' };
     this.ops.drawLargeInnerDiamond(goldenBody.pentaTree, style);
   }
   if (propertyPathArray[1] === 'small') {
+    let style = { fillStyle: 'rgba(255, 0, 150, 0.8)', strokeStyle: '#c00' };
     this.ops.drawSmallInnerDiamond(goldenBody.pentaTree, style);
   }
 }

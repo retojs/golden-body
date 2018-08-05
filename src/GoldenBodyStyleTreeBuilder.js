@@ -17,14 +17,22 @@ function createStyleTree(goldenBody) {
 
     lineWidth: 6,
     fillStyle: PS.colors.transparent.black,
-    outer: PS.all(PS.strokes.dark.cyan, PS.fills.alpha[3].cyan),
-    inner: PS.all(PS.strokes.dark.red, PS.fills.mix(PS.colors.alpha[3].red, PS.colors.alpha[3].yellow, 3, 1)),
     middle: {
       ...PS.fills.aShineOf.magenta,
       upper: PS.strokes.mix(PS.colors.dark.magenta, PS.colors.magenta, 2, 1),
       lower: PS.strokes.dark.magenta
-    }
+    },
+    inner: PS.all(PS.strokes.dark.red, PS.fills.mix(PS.colors.alpha[3].red, PS.colors.alpha[3].yellow, 3, 1)),
+    outer: PS.all(PS.strokes.dark.cyan, PS.fills.alpha[3].cyan),
+    outerst: PS.all(PS.strokes.dark.alpha[5].cyan, PS.fills.alpha[2].cyan)
   }
+  mainStyles.middle.fillCircle = PS.fills.alpha[3].magenta;
+  mainStyles.outer.fillStar = PS.fills.alpha[7].cyan;
+  mainStyles.outerst.middle = PS.strokes.alpha[4].magenta;
+  mainStyles.outerst.drawPentagram = false;
+  mainStyles.outerst.fillPentagram = false;
+  mainStyles.outerst.fillStar = false;
+  
 
   goldenBody.styleTree = copy(mainStyles);
 
@@ -34,25 +42,28 @@ function createStyleTree(goldenBody) {
   goldenBody.styleTree.cores = copy(mainStyles);
   goldenBody.styleTree.cores.lineWidth = 4 * 1;
 
-  goldenBody.styleTree.cores.inner.fillPentagram = PS.fills.alpha[5].red;
+  goldenBody.styleTree.cores.inner.fillPentagon = PS.fills.alpha[6].red;
   goldenBody.styleTree.cores.outer.fillCircle = PS.fills.alpha[5].cyan;
   goldenBody.styleTree.cores.middle = PS.all(
     PS.strokes.mix(PS.colors.dark.cyan, PS.colors.magenta),
     PS.fills.alpha[3].cyan
   );
-  goldenBody.styleTree.cores.middle.drawCircle = PS.strokes.dark.cyan;
+  //goldenBody.styleTree.cores.middle.drawCircle = PS.strokes.dark.cyan;
+  goldenBody.styleTree.cores.middle.fillStar = PS.fills.alpha[5].cyan;
 
   //
   // Supers
 
   goldenBody.styleTree.supers = {
+    lineWidth: 1,
     drawCircle: false,
     drawPentagon: false,
 
     inner: {
       drawPentagram: PS.strokes.alpha[3].orange,
-      upper: PS.fills.aShineOf.red,
-      lower: PS.fills.aShineOf.red
+      fillPentagram: true,
+      upper: PS.fills.alpha[1].red,
+      lower: PS.fills.alpha[1].red,
     },
     outer: {
       drawPentagram: PS.strokes.bright.cyan,
@@ -60,6 +71,8 @@ function createStyleTree(goldenBody) {
       lower: PS.fills.aShineOf.cyan,
     },
     middle: {
+      drawCircle: PS.strokes.bright.magenta,
+      drawPentagram: PS.strokes.bright.magenta,
       upper: {
         ...PS.fills.aShineOf.magenta,
         ...PS.strokes.alpha[3].magenta
@@ -67,8 +80,7 @@ function createStyleTree(goldenBody) {
       lower: {
         ...PS.fills.aShineOf.magenta,
         ...PS.strokes.mix(PS.colors.alpha[3].magenta, PS.colors.alpha[3].blue, 2, 1)
-      },
-      drawCircle: PS.strokes.bright.magenta
+      }
     }
   };
 
@@ -76,7 +88,9 @@ function createStyleTree(goldenBody) {
   // Golden Spots
 
   goldenBody.styleTree.spots = {
-    radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_,
+    radius: goldenBody.root.radius * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_ * PM.gold_,
+
+    lineWidth: 1,
 
     inner: {
       fillCircle: PS.fills.alpha[5].yellow,
