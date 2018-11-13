@@ -38,21 +38,20 @@ function setupIncrementalPaint() {
         }
     }
 
-    const doubleClickMaxDelayMillis = 500;
-    let lastClick;
+
 
     goldenContext.canvas.addEventListener('mouseup', (event) => {
         if (isDoubleClick()) {
-            start(event.shiftKey);
+            if (incPaintTimeout) {
+                stop();
+            } else {
+                start(event.shiftKey);
+            }
         } else {
             lastClick = Date.now();
         }
     });
 
-    function isDoubleClick() {
-        let clickDelay = lastClick ? Date.now() - lastClick : doubleClickMaxDelayMillis;
-        return clickDelay < doubleClickMaxDelayMillis;
-    }
 }
 
 

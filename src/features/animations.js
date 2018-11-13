@@ -1,7 +1,6 @@
 
 function setupAnimations() {
 
-
     /**
      * How to communicate through closure context
      */
@@ -195,7 +194,7 @@ function setupAnimations() {
     goldenContext.animatePentaStyles = (ctx, op, propertyPathArray) => goldenContext.animStyle.animatePentaStyles(ctx, op, propertyPathArray);
 
     document.addEventListener('keypress', (event) => {
-        if (event.charCode === 32) {
+        if (event.ctrlKey && event.charCode === 32) {
             event.preventDefault();
             event.stopPropagation();
             if (!goldenContext.animationStartTime) {

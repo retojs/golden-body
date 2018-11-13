@@ -1,3 +1,18 @@
+
+function setupShared() {
+    goldenContext.doubleClickMaxDelayMillis = 500;
+    goldenContext.lastClick;
+}
+
+function isDoubleClick() {
+    let clickDelay = goldenContext.lastClick ? Date.now() - goldenContext.lastClick : goldenContext.doubleClickMaxDelayMillis;
+    let isDoubleClick = clickDelay < goldenContext.doubleClickMaxDelayMillis;
+    if (!isDoubleClick) {
+        goldenContext.lastClick = Date.now();
+    }
+    return isDoubleClick;
+}
+
 function repaint(unchanged) {
     window.requestAnimationFrame(() => {
         if (unchanged) {
@@ -48,8 +63,8 @@ function getCoords(x, y, originX, originY, scale) {
 }
 
 function getPaintOrderTextareaLines() {
-  const content = document.getElementById('golden-body-paint-order').value;
-  return content.split('\n').filter(line => !!line.trim());
+    const content = document.getElementById('golden-body-paint-order').value;
+    return content.split('\n').filter(line => !!line.trim());
 }
 
 function setPaintOrderTextareaContent(innerHTML) {

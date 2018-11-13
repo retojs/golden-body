@@ -58,15 +58,16 @@ goldenContext.setup();
 
     END TODO
 */ 
-setupLegendVisibility();
-setupPentaDragNDrop();
+setupShared();
+setupAnimations();
 setupCanvasZoomNTranslate();
+setupFullScreen();
+setupIncrementalPaint();
+setupLegendVisibility();
+setupPaintBitmap();
 setupPaintOrderEditing();
 setupPaintOrderSelection();
-setupIncrementalPaint();
-setupAnimations();
-setupFullScreen();
-
+setupPentaDragNDrop();
 
 // TEST
 

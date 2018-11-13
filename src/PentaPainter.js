@@ -46,6 +46,9 @@ PentaPainter.prototype.paintGoldenBody = function (goldenBody) {
           if (goldenContext.animationStartTime && goldenContext.animateTreePath.some(path => line.indexOf(path) === 0)) {
             return; // don't paint animated elements here if animation is running
           }
+          if (line.indexOf('/') === 0) {
+            return;
+          }
           if (line.indexOf('spots') === 0) {
             this.paintSpots(goldenBody, line);
           } else if (line.indexOf('diamonds') === 0) {
@@ -83,26 +86,27 @@ PentaPainter.prototype.repaint = function (offscreenCanvas, clearCanvas) {
     goldenContext.canvasSize.height * goldenContext.zoom,
   );
 
-  if (!goldenContext.changing) {
-    this.paintImage();
+  if (goldenContext.doPaintBitmap && !goldenContext.changing) {
+    console.log('goldenContext.doPaintBitmap=', goldenContext.doPaintBitmap);
+    this.paintBitmap();
   }
 };
 
-PentaPainter.prototype.lastPaintImage = -1;
+PentaPainter.prototype.lastPaintBitmap = -1;
 
-PentaPainter.prototype.paintImage = function () {
-  this.lastPaintImage = Date.now();
-  let throttleMillis = 600;
+PentaPainter.prototype.paintBitmap = function () {
+  this.lastPaintBitmap = Date.now();
+  let throttleMillis = 1200;
 
   setTimeout(() => {
-    if (getDeltaTime(this.lastPaintImage) >= throttleMillis) {
+    if (getDeltaTime(this.lastPaintBitmap) >= throttleMillis && !goldenContext.changing) {
       let canvasImage = document.getElementById('canvas-image');
       canvasImage.src = 'assets/clock.png';
       goldenContext.canvas.className = 'clock';
       setTimeout(() => {
         const data = goldenContext.canvas.toDataURL('image/png');
         canvasImage.src = data;
-        canvasImage.title='Right-click to download the current image';  
+        canvasImage.title = 'Right-click to download the current image';
         goldenContext.canvas.className = '';
       }, 30)
     }
