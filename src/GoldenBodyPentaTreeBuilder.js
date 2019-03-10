@@ -99,6 +99,15 @@ function createPentaTree(goldenBody) {
       upper: outerUpper.createOuter(),
       lower: outerLower.createOuter()
     },
+    outerst2: {
+      upper: outerUpper.createOuter().createOuter(),
+      lower: outerLower.createOuter().createOuter()
+    },
+    outerst3: {
+      upper: outerUpper.createOuter().createOuter().createOuter(),
+      lower: outerLower.createOuter().createOuter().createOuter()
+    },
+
 
     cores: {
       middle: {

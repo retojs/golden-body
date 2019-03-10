@@ -1,23 +1,25 @@
 
 const paintOrderStandard = `
-supers.outer
-supers.inner
-supers.middle
-outerst.upper
-outerst.lower
+// supers.outer
+// supers.inner
+// supers.middle
+
 outer
 inner
-diamonds.large
+//diamonds.large
+//diamonds.small
+//cores.outer
+//cores.inner
 middle
-diamonds.small
-cores.outer
-cores.inner
-cores.middle
-spots.cores.middle
+//cores.middle
+//spots.cores.middle
 spots.cores.outer
 spots.middle
 spots.inner
 spots.outer
+//outerst.upper
+//outerst.lower
+//outerst2
 `;
 
 const paintOrderOuterAndMiddle = `
